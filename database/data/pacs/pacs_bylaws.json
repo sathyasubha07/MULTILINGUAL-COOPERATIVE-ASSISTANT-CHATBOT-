@@ -1,0 +1,22 @@
+[
+  {
+    "id": "PACS-01",
+    "domain": "pacs",
+    "title": "Model Bye-laws for Primary Agricultural Credit Societies (PACS) as Multi-Purpose Entities",
+    "overview": "Guidelines adopted under the Ministry of Cooperation to transform 63,000+ functional PACS into vibrant, financially sustainable, multi-service economic hubs.",
+    "permitted_activities": [
+      "Short-term, medium-term and long-term agricultural credit disbursement",
+      "Supply of certified agricultural inputs (Seeds, Fertilizers, Pesticides) at regulated MRP",
+      "Operation of Custom Hiring Centers (Tractors, Harvesters, Drone spraying)",
+      "Establishment of Cold storage, Godowns, Assaying & Grading infrastructure",
+      "LPG Distributorship, Petrol Pump outlets, and Community CSC delivery centers",
+      "Operation of Pradhan Mantri Kisan Samriddhi Kendras (PMKSK) and Jan Aushadhi Kendras (Affordable Generic Medicines)"
+    ],
+    "governance_and_audit": {
+      "enterprise_resource_planning": "Standard ERP software onboarding mapped to NABARD state cooperative data pipeline",
+      "statutory_audit": "Mandatory annual audit completed by certified chartered cooperative auditors within 6 months of financial year end",
+      "board_composition": "Minimum 5 to 15 elected directors with statutory representation for women and SC/ST farmers"
+    },
+    "citations": ["Ministry of Cooperation Model Bye-Laws for PACS 2022", "NABARD PACS Digitization Circular"]
+  }
+]

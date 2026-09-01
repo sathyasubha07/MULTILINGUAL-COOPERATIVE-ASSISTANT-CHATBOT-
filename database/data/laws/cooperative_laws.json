@@ -1,0 +1,47 @@
+[
+  {
+    "id": "LAW-MSCS-01",
+    "act_name": "Multi-State Co-operative Societies (Amendment) Act, 2023",
+    "section": "Section 45 - Cooperative Election Authority",
+    "domain": "cooperative_law",
+    "title": "Establishment of Cooperative Election Authority for Free & Fair Elections",
+    "summary": "Mandates the Central Government to establish the Cooperative Election Authority (CEA) to conduct elections for the board of multi-state cooperative societies in an impartial and timely manner.",
+    "key_provisions": [
+      "Elections must be held before the expiry of the term of the existing board.",
+      "Voters list must be finalized 30 days prior to voting date.",
+      "Any member with at least 1 year active membership and required minimum transactions has voting right."
+    ],
+    "citations": ["MSCS Act 2023 Sec 45", "Gazette Notification No. CG-DL-E-04082023-247858"],
+    "applicable_to": "All Multi-State Cooperative Societies across India"
+  },
+  {
+    "id": "LAW-MSCS-02",
+    "act_name": "Multi-State Co-operative Societies Act, 2002",
+    "section": "Section 84 - Reference of Disputes to Arbitration",
+    "domain": "cooperative_law",
+    "title": "Dispute Resolution & Arbitration Procedure",
+    "summary": "Provides the statutory mechanism for settling disputes concerning the constitution, management, elections or business of a cooperative society through the Central Registrar or appointed Arbitrator.",
+    "key_provisions": [
+      "Disputes between members, past members, or society and board must be referred to arbitration.",
+      "Civil courts have barred jurisdiction over matters covered under Section 84.",
+      "Limitation period for monetary claims is 3 years from cause of action."
+    ],
+    "citations": ["MSCS Act 2002 Sec 84(1)", "Cooperative Dispute Rules 2003"],
+    "applicable_to": "Society Members, Board Members, Creditors"
+  },
+  {
+    "id": "LAW-STATE-03",
+    "act_name": "Model State Cooperative Societies Act & State Cooperative Bylaws",
+    "section": "Section 19 / Rule 12 - Right to Membership & Non-Discrimination",
+    "domain": "cooperative_law",
+    "title": "Right of Eligible Farmers to Obtain PACS Membership",
+    "summary": "Every eligible farmer or rural artisan residing within the operational area of a Primary Agricultural Credit Society (PACS) has an open right to membership upon paying prescribed share capital.",
+    "key_provisions": [
+      "PACS Managing Committee cannot reject membership without written justification within 30 days.",
+      "If not communicated in 30 days, deemed membership applies or appeal lies to Assistant Registrar (ARCS).",
+      "Nominal/Associate members cannot vote, but full members enjoy complete democratic voting rights."
+    ],
+    "citations": ["Model State Cooperative Societies Bylaws Cl. 7", "NABARD PACS Guidelines 2022"],
+    "applicable_to": "Small & Marginal Farmers, Tenant Cultivators"
+  }
+]

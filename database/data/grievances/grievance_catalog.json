@@ -1,0 +1,51 @@
+[
+  {
+    "id": "GRV-01",
+    "category": "PACS Loan Disbursement Delay or Denial",
+    "domain": "grievance",
+    "severity": "Medium",
+    "description": "Farmer applied for short-term KCC loan at local PACS but application is pending beyond 15 working days without legitimate cause.",
+    "primary_officer": "Secretary / Chief Executive Officer, Local PACS",
+    "first_escalation": "Assistant Registrar of Cooperative Societies (ARCS) / District Central Cooperative Bank (DCCB) Branch Manager",
+    "second_escalation": "Deputy Registrar of Cooperative Societies (DRCS) / Cooperative Ombudsman",
+    "required_documents": [
+      "Copy of submitted loan application with date acknowledgment",
+      "Land Record (7/12, Patta, or Khatauni)",
+      "KCC Passbook / Society Membership Card"
+    ],
+    "statutory_timeline": "15 days for first response; 30 days for resolution under Cooperative Citizen Charter"
+  },
+  {
+    "id": "GRV-02",
+    "category": "PMFBY Crop Insurance Claim Rejection / Delay",
+    "domain": "grievance",
+    "severity": "High",
+    "description": "Farmer suffered crop loss due to hailstorm or localized flooding, intimated within 72 hours, but claim was rejected or payout unpaid past 45 days.",
+    "primary_officer": "District Agriculture Officer (DAO) / Insurance Nodal Officer",
+    "first_escalation": "District Level Grievance Redressal Committee (DGRC) headed by District Magistrate (DM/Collector)",
+    "second_escalation": "State Level Grievance Redressal Committee (SGRC) / National Crop Insurance Portal Grievance Desk",
+    "required_documents": [
+      "PMFBY Insurance Policy / Receipt / Application ID",
+      "Crop loss 72-hour Intimation Docket Number",
+      "Surveyor joint inspection report copy (if conducted)",
+      "Bank Account statement showing premium deduction"
+    ],
+    "statutory_timeline": "DGRC must adjudicate claim dispute within 15 days of filing"
+  },
+  {
+    "id": "GRV-03",
+    "category": "Illegal Denial of PACS Membership",
+    "domain": "grievance",
+    "severity": "Medium",
+    "description": "Local PACS managing committee refused or delayed farmer membership application without written reasons.",
+    "primary_officer": "Assistant Registrar of Cooperative Societies (ARCS)",
+    "first_escalation": "Deputy Registrar (DRCS) / Joint Registrar (JRCS)",
+    "second_escalation": "State Cooperative Tribunal / Minister of Cooperation Public Grievance Portal",
+    "required_documents": [
+      "Membership application copy with share capital receipt or postal delivery slip",
+      "Residence certificate or Land document in the village",
+      "Written refusal letter (if issued by PACS)"
+    ],
+    "statutory_timeline": "ARCS will inspect society records within 21 days and order deemed membership if criteria met"
+  }
+]
