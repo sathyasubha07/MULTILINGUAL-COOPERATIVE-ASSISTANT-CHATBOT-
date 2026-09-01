@@ -1,0 +1,47 @@
+[
+  {
+    "id": "SCHEME-01",
+    "scheme_name": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+    "domain": "farmer_scheme",
+    "ministry": "Ministry of Agriculture & Farmers Welfare",
+    "financial_benefit": "₹6,000 per year paid in 3 equal four-monthly installments of ₹2,000 via DBT",
+    "eligibility_criteria": [
+      "All landholding farmer families with cultivable landholding in their names.",
+      "e-KYC completed on PM-KISAN portal (Aadhaar OTP or Biometric CSC).",
+      "Bank account must be Aadhaar-seeded / NPCI direct benefit mapped."
+    ],
+    "exclusions": [
+      "Institutional landholders",
+      "Holding constitutional posts, retired or serving government employees",
+      "Persons who paid income tax in the last assessment year"
+    ],
+    "application_mode": "Online via pmkisan.gov.in or nearest PACS / Common Service Centre (CSC)",
+    "documents_required": ["Aadhaar Card", "Land Khatauni / Land Ownership Record", "Bank Passbook with IFSC", "Mobile Number"],
+    "citations": ["PM-KISAN Operational Guidelines Rev. 2023", "MoA&FW Scheme Portal"]
+  },
+  {
+    "id": "SCHEME-02",
+    "scheme_name": "Agriculture Infrastructure Fund (AIF)",
+    "domain": "farmer_scheme",
+    "ministry": "Ministry of Agriculture & Farmers Welfare / NABARD",
+    "financial_benefit": "3% Interest Subvention per annum up to ₹2 Crores loan + CGTMSE Credit Guarantee",
+    "eligibility_criteria": [
+      "PACS, Multi-Purpose Cooperatives, Farmer Producer Organizations (FPOs), Agri-entrepreneurs.",
+      "For post-harvest management infrastructure, cold stores, silos, assaying units, and sorting lines."
+    ],
+    "documents_required": ["PACS Registration Certificate", "Detailed Project Report (DPR)", "Land Lease / Ownership Proof", "Audited Balance Sheets (3 yrs)"],
+    "citations": ["AIF Operational Guidelines Para 4.2", "NABARD Circular No. NB.DFP/2021"]
+  },
+  {
+    "id": "SCHEME-03",
+    "scheme_name": "Interest Subvention Scheme for Short Term Crop Loans (KCC)",
+    "domain": "farmer_scheme",
+    "ministry": "Ministry of Cooperation / Ministry of Finance",
+    "financial_benefit": "Effective 4% interest rate on prompt repayment (Standard 7% minus 3% PRI prompt subvention) up to ₹3 Lakhs",
+    "eligibility_criteria": [
+      "Farmers availing short-term crop loans through PACS, RRBs, or Commercial Banks on Kisan Credit Card (KCC).",
+      "Timely repayment within 1 year / crop marketing season."
+    ],
+    "citations": ["RBI/FIDD/2023-24/104 Master Circular KCC", "MoC Interest Subvention Notification"]
+  }
+]

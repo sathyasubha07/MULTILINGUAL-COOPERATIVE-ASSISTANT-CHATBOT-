@@ -1,0 +1,32 @@
+[
+  {
+    "id": "PMFBY-01",
+    "scheme_name": "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
+    "domain": "pmfby",
+    "premium_rates": {
+      "kharif_crops": "2.0% of Sum Insured",
+      "rabi_crops": "1.5% of Sum Insured",
+      "commercial_horticultural": "5.0% of Sum Insured"
+    },
+    "risk_coverage": [
+      "Prevented Sowing / Planting Risk (Deficit rainfall or adverse season)",
+      "Mid-Season Adversity (Severe drought, dry spell, flood, unseasonal rains)",
+      "Post-Harvest Losses (Up to 14 days after harvest for crops left in 'cut & spread' condition in field for drying against cyclonic & unseasonal rains)",
+      "Localized Calamities (Hailstorm, landslide, inundation, cloud burst, natural fire)"
+    ],
+    "critical_deadlines": {
+      "intimation_period": "Strictly within 72 hours of localized calamity or post-harvest event",
+      "intimation_channels": [
+        "Crop Insurance App (Farmer App)",
+        "Toll Free Hotline: 14447 or 1800-180-1551",
+        "Nearest PACS Secretary / District Agriculture Office / Insurance Company Nodal Bank"
+      ]
+    },
+    "required_claim_evidence": [
+      "Photographs/videos of damaged farm with geotag timestamp via Crop Insurance App",
+      "Kisan Credit Card / Policy Number / Aadhaar Number",
+      "Land Record / Survey number details"
+    ],
+    "citations": ["Revised Operational Guidelines PMFBY 2023 Sec 9 & 10", "MoA&FW NCIP Notification"]
+  }
+]
