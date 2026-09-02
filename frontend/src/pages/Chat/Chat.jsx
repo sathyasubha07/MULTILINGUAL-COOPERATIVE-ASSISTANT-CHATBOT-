@@ -1,19 +1,21 @@
 import React from 'react';
+import { Globe } from 'lucide-react';
 import ChatBox from '../../components/ChatBox/ChatBox';
+import { useLanguage } from '../../context/LanguageContext';
 
-export default function Chat({ currentLang, initialQuery }) {
+export default function Chat({ onChangeLanguage }) {
+  const { t } = useLanguage();
+
   return (
-    <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '16px' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: '800', color: '#064e3b' }}>
-          Multilingual Cooperative Legal & Advisory Chatbot
-        </h2>
-        <p style={{ fontSize: '14px', color: '#64748b' }}>
-          Ask queries in 11 Indian languages via Voice or Text. Grounded in official Gazette notifications and acts.
-        </p>
+    <div className="chat-page">
+      <div className="chat-page-header">
+        <span className="chat-page-title">{t('appName')}</span>
+        <button onClick={onChangeLanguage} className="change-lang-btn">
+          <Globe size={16} />
+          {t('changeLanguage')}
+        </button>
       </div>
-
-      <ChatBox currentLang={currentLang} initialQuery={initialQuery} />
+      <ChatBox />
     </div>
   );
 }
