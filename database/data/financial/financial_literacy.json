@@ -2,30 +2,22 @@
   {
     "id": "FIN-01",
     "domain": "financial_literacy",
-    "topic": "Kisan Credit Card (KCC) Limit & Scale of Finance",
-    "summary": "Explains how farmer credit limit is calculated based on operational land area, crop type, cost of cultivation, post-harvest maintenance and household consumption.",
-    "key_formulas": {
-      "first_year_limit": "Scale of Finance for crop x Cultivated Area + 10% towards post-harvest/household + 20% towards farm asset maintenance",
-      "5_year_sanction": "Automatic 10% annual escalation over base limit for successive years without fresh mortgage/documentation"
-    },
-    "interest_rates": {
-      "base_rate": "7.0% per annum for credit up to ₹3,00,000",
-      "prompt_repayment_incentive": "3.0% interest subvention credited back upon repayment on or before due date",
-      "effective_rate": "4.0% per annum"
-    },
-    "warning": "Never pay cash processing fees to unauthorized middlemen for KCC issuance. PACS charges are statutorily regulated.",
-    "citations": ["RBI Master Circular - Kisan Credit Card (KCC) Scheme", "NABARD Scale of Finance Guidelines"]
+    "title": "Kisan Credit Card (KCC) / Modified Interest Subvention Scheme (MISS)",
+    "content": "Provides flexible credit limits based on cropping pattern and landholding. The baseline interest rate is 7% per annum on credit up to ₹3,00,000, with a 3% prompt-repayment incentive bringing the effective rate down to 4%. The collateral-free loan limit is ₹1.60 lakh, expandable up to ₹3 lakh for tie-up arrangements.",
+    "source": "RBI Master Circular on Kisan Credit Card (KCC) Scheme"
   },
   {
     "id": "FIN-02",
     "domain": "financial_literacy",
-    "topic": "Safe Digital Banking & Direct Benefit Transfer (DBT)",
-    "summary": "Essential safety rules for farmers using micro-ATMs at PACS, AEPS (Aadhaar Enabled Payment System), and UPI for agricultural payments.",
-    "safety_rules": [
-      "Never share OTP or banking PIN with anyone, including individuals claiming to be bank or cooperative society managers.",
-      "Check SMS confirmation for debit/credit amounts immediately after biometric fingerprint authentication at PACS micro-ATM.",
-      "Ensure DBT Aadhaar seeding is linked only with your primary active bank account."
-    ],
-    "citations": ["RBI Financial Education Handbook 2023", "NPCI Guidelines for Cooperative Bank AEPS"]
+    "title": "PM Suraksha Bima Yojana (PMSBY) & PM Jeevan Jyoti Bima Yojana (PMJJBY)",
+    "content": "Low-cost social security schemes linked to rural bank accounts. PMSBY provides ₹2 lakh accidental death or disability cover for a premium of ₹20 per year. PMJJBY provides ₹2 lakh life cover for a premium of ₹436 per year.",
+    "source": "Dept. of Financial Services, Ministry of Finance"
+  },
+  {
+    "id": "FIN-03",
+    "domain": "financial_literacy",
+    "title": "Atal Pension Yojana (APY)",
+    "content": "A guaranteed monthly pension scheme for unorganized rural workers and smallholder farmers, providing ₹1,000 to ₹5,000 per month after age 60. The pension amount depends on the subscriber's entry age, which must be between 18 and 40 years.",
+    "source": "PFRDA, Atal Pension Yojana Guidelines"
   }
 ]

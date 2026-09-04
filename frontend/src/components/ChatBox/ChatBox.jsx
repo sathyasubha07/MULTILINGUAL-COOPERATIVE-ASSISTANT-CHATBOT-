@@ -4,6 +4,8 @@ import { sendTextQuery } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
 import VoiceInput from '../VoiceInput/VoiceInput';
 import OfficerRecommendationCard from '../OfficerRecommendationCard/OfficerRecommendationCard';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ChatBox() {
   const { language, t } = useLanguage();
@@ -98,7 +100,7 @@ export default function ChatBox() {
                   className={`chat-bubble ${isUser ? 'chat-bubble-user' : 'chat-bubble-ai'}`}
                   style={msg.isVoice ? { fontStyle: 'italic', opacity: 0.9 } : undefined}
                 >
-                  {msg.text}
+                  {isUser ? msg.text : <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>}
                 </div>
                 {!isUser && msg.responseType === 'grievance' && msg.officerRecommendation && (
                   <OfficerRecommendationCard officer={msg.officerRecommendation} />

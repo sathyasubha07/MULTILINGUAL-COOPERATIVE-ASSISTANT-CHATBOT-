@@ -1,7 +1,7 @@
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 // TODO: connect to real API — set USE_MOCK to false when backend is ready
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 /**
  * Send a text query to the unified assistant.
