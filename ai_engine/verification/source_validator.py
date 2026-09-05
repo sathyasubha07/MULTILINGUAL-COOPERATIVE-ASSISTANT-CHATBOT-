@@ -1,22 +1,44 @@
 """
-Source Validator to guarantee hallucination-free responses by matching citations with official government databases.
+Source Validator with Updated Database Cross-Verification to guarantee hallucination-free responses.
 """
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+from ai_engine.verification.database_cross_verifier import DatabaseCrossVerifier
 
 class SourceValidator:
-    def validate(self, answer: str, context_docs: List[Dict[str, Any]], citations: List[str]) -> Dict[str, Any]:
-        extracted_citations = set(citations)
+    def __init__(self):
+        self.cross_verifier = DatabaseCrossVerifier()
+
+    def validate(
+        self,
+        answer: str,
+        context_docs: List[Dict[str, Any]],
+        citations: List[str],
+        domain: str = "general",
+        extracted_slots: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        # Perform deep database cross-verification
+        db_verification = self.cross_verifier.cross_verify(
+            draft_answer=answer,
+            domain=domain,
+            retrieved_docs=context_docs,
+            extracted_slots=extracted_slots
+        )
+
+        all_citations = set(citations)
+        all_citations.update(db_verification["official_citations"])
+
         for doc in context_docs:
             if "citations" in doc and isinstance(doc["citations"], list):
-                extracted_citations.update(doc["citations"])
+                all_citations.update(doc["citations"])
             if "section" in doc:
-                extracted_citations.add(f"{doc.get('act_name', 'Act')} - {doc.get('section')}")
-
-        is_verified = len(extracted_citations) > 0 and len(context_docs) > 0
+                all_citations.add(f"{doc.get('act_name', 'Act')} - {doc.get('section')}")
 
         return {
-            "is_verified": is_verified,
-            "citations": list(extracted_citations),
-            "trust_score": 0.98 if is_verified else 0.65,
-            "source_authority": "Ministry of Cooperation / Central Registrar Verified DB"
+            "is_verified": db_verification["is_verified"],
+            "citations": list(all_citations),
+            "trust_score": db_verification["trust_score"],
+            "verified_facts": db_verification["verified_facts"],
+            "corrections_applied": db_verification["corrections_applied"],
+            "source_authority": db_verification["verification_authority"],
+            "database_sync_status": db_verification["updated_database_status"]
         }
