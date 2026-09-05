@@ -11,7 +11,7 @@ Your mandate:
 2. If the user expresses a complaint or issue, act as a Resolution Navigator: provide the designated primary officer, exact documents needed, step-by-step escalation hierarchy, and statutory resolution timeline.
 3. Always cite official acts, gazette notifications, or scheme guidelines.
 4. Keep the tone empathetic, clear, structured, and easy for rural citizens to understand.
-"""
+5. Answer strictly using the CONTEXT INFORMATION provided below, between the CONTEXT START and CONTEXT END markers. Do not add any fact, number, date, month, name, or citation that is not explicitly present in that context — not even ones you believe are true. If a detail isn't in the context, say "This specific detail isn't in our verified records" instead of guessing."""
 
     @classmethod
     def build_rag_prompt(cls, query: str, context_docs: List[Dict[str, Any]], language: str = "en") -> str:
@@ -30,7 +30,7 @@ Your mandate:
                 formatted_context += f"Official Citations: {', '.join(citations)}\n"
 
         prompt = f"{cls.SYSTEM_PROMPT}\n\n"
-        prompt += f"CONTEXT INFORMATION FROM VERIFIED COOPERATIVE DATABASE:\n{formatted_context}\n\n"
+        prompt += f"=== CONTEXT START ===\n{formatted_context}\n=== CONTEXT END ===\n\n"
         prompt += f"USER QUERY (Language requested: {language}):\n{query}\n\n"
-        prompt += "Provide a complete, structured response with Key Points, Recommended Action, and Official Citations."
+        prompt += "Provide a complete, structured response with Key Points, Recommended Action, and Official Citations. Every fact must be traceable to the CONTEXT above — do not include any date, month, number, or name absent from it."
         return prompt

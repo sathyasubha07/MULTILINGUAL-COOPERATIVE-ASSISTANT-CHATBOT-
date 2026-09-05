@@ -4,6 +4,8 @@ import { sendTextQuery, sendVoiceQuery, fetchTTSAudio } from '../../services/api
 import { useLanguage } from '../../context/LanguageContext';
 import VoiceInput from '../VoiceInput/VoiceInput';
 import OfficerRecommendationCard from '../OfficerRecommendationCard/OfficerRecommendationCard';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ChatBox() {
   const { language, t } = useLanguage();
@@ -304,7 +306,7 @@ export default function ChatBox() {
                     </div>
                   )}
 
-                  {msg.text}
+                  {isUser ? msg.text : <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>}
 
                   {/* Verified Statutory Citations */}
                   {!isUser && msg.citations && msg.citations.length > 0 && (

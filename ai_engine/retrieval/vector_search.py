@@ -1,44 +1,58 @@
 """
-Vector search simulation & indexer with lightweight cosine/BM25 scoring for offline edge capability.
+Semantic vector search using ChromaDB + Sentence-Transformers embeddings.
+Replaces the earlier keyword/BM25 placeholder with real RAG retrieval.
+
+The index itself is built once (and rebuilt whenever data changes) via
+scripts/create_embeddings.py. This class only connects to that persisted
+index and runs queries against it.
 """
-import math
-import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+
+import chromadb
+from sentence_transformers import SentenceTransformer
+from config.settings import settings
+
+COLLECTION_NAME = "cooperative_kb"
+
 
 class VectorSearchEngine:
     def __init__(self):
-        self.indexed_docs = []
+        self.client = chromadb.PersistentClient(path=settings.VECTOR_DB_PATH)
+        self.collection = self.client.get_or_create_collection(COLLECTION_NAME)
+        self.model = SentenceTransformer(settings.EMBEDDING_MODEL)
 
-    def load_index(self, docs: List[Dict[str, Any]]):
-        self.indexed_docs = docs
+    def load_index(self, docs: List[Dict[str, Any]] = None):
+        # No-op kept for backward compatibility with HybridRetriever's old
+        # call site. The real index is built by scripts/create_embeddings.py.
+        pass
 
-    def _tokenize(self, text: str) -> List[str]:
-        return re.findall(r'\w+', text.lower())
+    def search(self, query: str, domain_filter: Optional[str] = None, top_k: int = 4) -> List[Dict[str, Any]]:
+        count = self.collection.count()
+        if count == 0:
+            return []
 
-    def search(self, query: str, top_k: int = 4) -> List[Dict[str, Any]]:
-        query_tokens = set(self._tokenize(query))
-        scored_docs = []
+        query_embedding = self.model.encode([query]).tolist()
+        where = None
+        if domain_filter and domain_filter != "general_coop":
+            where = {"domain": domain_filter}
 
-        for doc in self.indexed_docs:
-            doc_text = " ".join([
-                str(v) for k, v in doc.items() if isinstance(v, (str, list, dict))
-            ])
-            doc_tokens = self._tokenize(doc_text)
-            if not doc_tokens:
-                continue
+        result = self.collection.query(
+            query_embeddings=query_embedding,
+            n_results=min(top_k, count),
+            where=where,
+        )
 
-            # Term overlap + length normalization (BM25 style lightweight similarity)
-            matches = [token for token in doc_tokens if token in query_tokens]
-            score = len(matches) / (math.sqrt(len(doc_tokens)) + 1.0)
-            
-            # Boost matches in title or section
-            title = str(doc.get("title") or doc.get("scheme_name") or doc.get("act_name") or "").lower()
-            for q_tok in query_tokens:
-                if q_tok in title:
-                    score += 1.5
+        ids = result.get("ids", [[]])[0]
+        metadatas = result.get("metadatas", [[]])[0]
+        documents = result.get("documents", [[]])[0]
 
-            if score > 0:
-                scored_docs.append({"doc": doc, "score": score})
-
-        scored_docs.sort(key=lambda x: x["score"], reverse=True)
-        return [item["doc"] for item in scored_docs[:top_k]]
+        docs = []
+        for doc_id, meta, content in zip(ids, metadatas, documents):
+            docs.append({
+                "id": doc_id,
+                "title": meta.get("title", doc_id),
+                "domain": meta.get("domain"),
+                "summary": content,
+                "citations": [meta["source"]] if meta.get("source") else [],
+            })
+        return docs
