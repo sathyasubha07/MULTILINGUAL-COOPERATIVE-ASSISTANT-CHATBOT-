@@ -4,8 +4,14 @@ Run this once, and again any time the JSON content below changes:
 
     python scripts/create_embeddings.py
 
-Prototype scope: only farmer_scheme + financial_literacy are embedded for now.
-Add more paths to SOURCE_FILES as you bring more domains online (e.g. grievance).
+Each chunk's TITLE is embedded together with its content (not just the content
+alone) — this matters because acronyms/scheme codes like "PM-KISAN" often only
+appear in the title field, not in the body text. Without the title included,
+a query for the exact scheme code can fail to match its own document.
+
+Each scheme's "designation" field (the officer type responsible for it,
+e.g. "AAO") is carried through into Chroma's metadata, so retrieval can
+later look up the right contact via authority_lookup.py.
 """
 import os
 import sys
@@ -45,12 +51,28 @@ def build_index():
         with open(path, "r", encoding="utf-8") as f:
             items = json.load(f)
         for item in items:
-            ids.append(item["id"])
-            texts.append(item["content"])
+            item_id = item.get("id")
+            title = item.get("title") or item.get("scheme_name") or item_id
+            content = item.get("content") or item.get("summary") or ""
+            domain = item.get("domain", "")
+            source = item.get("source", "")
+            if not source and item.get("citations"):
+                source = "; ".join(item["citations"])
+            designation = item.get("designation", "")
+
+            # KEY FIX: embed title + content together, not content alone.
+            # Also fold in scheme_code if present, so short-code queries
+            # ("PM-KISAN", "KCC", "SMAM"...) have literal text to match.
+            scheme_code = item.get("scheme_code", "")
+            embed_text = f"{title}. {scheme_code}. {content}".strip()
+
+            ids.append(item_id)
+            texts.append(embed_text)
             metadatas.append({
-                "domain": item["domain"],
-                "title": item["title"],
-                "source": item.get("source", "")
+                "domain": domain,
+                "title": title,
+                "source": source,
+                "designation": designation,
             })
         print(f"[+] Loaded {len(items)} chunks from {os.path.relpath(path, settings.BASE_DIR)}")
 

@@ -2,19 +2,12 @@
   {
     "id": "FIN-01",
     "domain": "financial_literacy",
-    "title": "Kisan Credit Card (KCC) / Modified Interest Subvention Scheme (MISS)",
-    "content": "Provides flexible credit limits based on cropping pattern and landholding. The baseline interest rate is 7% per annum on credit up to ₹3,00,000, with a 3% prompt-repayment incentive bringing the effective rate down to 4%. The collateral-free loan limit is ₹1.60 lakh, expandable up to ₹3 lakh for tie-up arrangements.",
-    "source": "RBI Master Circular on Kisan Credit Card (KCC) Scheme"
-  },
-  {
-    "id": "FIN-02",
-    "domain": "financial_literacy",
     "title": "PM Suraksha Bima Yojana (PMSBY) & PM Jeevan Jyoti Bima Yojana (PMJJBY)",
     "content": "Low-cost social security schemes linked to rural bank accounts. PMSBY provides ₹2 lakh accidental death or disability cover for a premium of ₹20 per year. PMJJBY provides ₹2 lakh life cover for a premium of ₹436 per year.",
     "source": "Dept. of Financial Services, Ministry of Finance"
   },
   {
-    "id": "FIN-03",
+    "id": "FIN-02",
     "domain": "financial_literacy",
     "title": "Atal Pension Yojana (APY)",
     "content": "A guaranteed monthly pension scheme for unorganized rural workers and smallholder farmers, providing ₹1,000 to ₹5,000 per month after age 60. The pension amount depends on the subscriber's entry age, which must be between 18 and 40 years.",

@@ -21,9 +21,10 @@ class RAGPipeline:
         domain = routing_result["domain"]
         docs = routing_result["retrieved_context"]
         citations = routing_result["citations"]
+        authorities = routing_result.get("authorities", [])
 
         # 2. Prompt Building
-        prompt = PromptBuilder.build_rag_prompt(query, docs, language)
+        prompt = PromptBuilder.build_rag_prompt(query, docs, language, authorities=authorities)
 
         # 3. LLM Reasoning
         answer = self.reasoner.generate_response(prompt, docs, domain, language)
@@ -45,5 +46,5 @@ class RAGPipeline:
             "citations": validation["citations"],
             "verification_status": validation["is_verified"],
             "procedure": procedure,
-            "authorities": routing_result.get("authorities", [])
+            "authorities": authorities
         }
