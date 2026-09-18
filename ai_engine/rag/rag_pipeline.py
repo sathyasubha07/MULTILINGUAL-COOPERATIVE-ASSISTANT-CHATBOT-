@@ -34,6 +34,7 @@ class RAGPipeline:
         all_docs = routing_result["retrieved_context"]
         citations = routing_result["citations"]
         extracted_slots = routing_result.get("extracted_slots", {})
+        authorities = routing_result.get("authorities", [])
 
         domain_contexts: Dict[str, List[Dict[str, Any]]] = {}
         domain_answers: Dict[str, str] = {}
@@ -114,5 +115,5 @@ class RAGPipeline:
             "source_authority": fused_result["source_authority"],
             "procedure": procedure,
             "extracted_slots": extracted_slots,
-            "authorities": routing_result.get("authorities", [])
+            "authorities": authorities
         }

@@ -27,6 +27,7 @@ try:
         DATABASE_PATH: str = os.path.join(BASE_DIR, "database", "data")
         AUTHORITIES_PATH: str = os.path.join(BASE_DIR, "database", "authorities", "authorities.json")
         VECTOR_DB_PATH: str = os.path.join(BASE_DIR, "database", "vector_db")
+        OFFICER_DIRECTORY_PATH: str = os.path.join(BASE_DIR, "database", "data", "officers", "officer_directory.json")
 
         class Config:
             env_file = ".env"
@@ -52,5 +53,6 @@ except ImportError:
         DATABASE_PATH = os.path.join(BASE_DIR, "database", "data")
         AUTHORITIES_PATH = os.path.join(BASE_DIR, "database", "authorities", "authorities.json")
         VECTOR_DB_PATH = os.path.join(BASE_DIR, "database", "vector_db")
+        OFFICER_DIRECTORY_PATH = os.path.join(BASE_DIR, "database", "data", "officers", "officer_directory.json")
 
     settings = FallbackSettings()

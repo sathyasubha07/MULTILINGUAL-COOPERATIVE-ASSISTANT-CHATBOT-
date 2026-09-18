@@ -1,3 +1,10 @@
+"""
+Semantic vector search using ChromaDB + Sentence-Transformers embeddings.
+
+The index itself is built once (and rebuilt whenever data changes) via
+scripts/create_embeddings.py. This class connects to that persisted
+index and runs queries against it, with a resilient in-memory keyword fallback.
+"""
 import re
 import math
 from typing import List, Dict, Any, Optional
@@ -52,6 +59,7 @@ class VectorSearchEngine:
                             "domain": meta.get("domain"),
                             "summary": content,
                             "citations": [meta["source"]] if meta.get("source") else [],
+                            "designation": meta.get("designation") or None,
                         })
                     if docs:
                         return docs

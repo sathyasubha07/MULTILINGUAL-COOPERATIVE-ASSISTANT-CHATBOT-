@@ -4,8 +4,14 @@ Run this once, and again any time the JSON content below changes:
 
     python scripts/create_embeddings.py
 
-Prototype scope: only farmer_scheme + financial_literacy are embedded for now.
-Add more paths to SOURCE_FILES as you bring more domains online (e.g. grievance).
+Each chunk's TITLE is embedded together with its content (not just the content
+alone) — this matters because acronyms/scheme codes like "PM-KISAN" often only
+appear in the title field, not in the body text. Without the title included,
+a query for the exact scheme code can fail to match its own document.
+
+Each scheme's "designation" field (the officer type responsible for it,
+e.g. "AAO") is carried through into Chroma's metadata, so retrieval can
+later look up the right contact via authority_lookup.py.
 """
 import os
 import sys
@@ -62,18 +68,23 @@ def build_index():
         with open(path, "r", encoding="utf-8") as f:
             items = json.load(f)
         for idx, item in enumerate(items):
-            doc_id = item.get("id") or f"{os.path.basename(path).split('.')[0]}_{idx}"
-            doc_text = extract_doc_text(item)
-            doc_domain = item.get("domain") or os.path.basename(path).split("_")[0]
-            doc_title = item.get("title") or item.get("scheme_name") or item.get("act_name") or item.get("grievance_type") or doc_id
-            doc_source = item.get("source") or (item.get("citations")[0] if item.get("citations") else "")
+            item_id = str(item.get("id") or f"{os.path.basename(path).split('.')[0]}_{idx}")
+            title = str(item.get("title") or item.get("scheme_name") or item.get("act_name") or item.get("grievance_type") or item_id)
+            content = str(item.get("content") or item.get("summary") or extract_doc_text(item) or "")
+            domain = str(item.get("domain") or os.path.basename(path).split("_")[0])
+            source = str(item.get("source") or (item.get("citations")[0] if item.get("citations") else ""))
+            designation = str(item.get("designation") or "")
 
-            ids.append(str(doc_id))
-            texts.append(doc_text)
+            scheme_code = str(item.get("scheme_code") or "")
+            embed_text = f"{title}. {scheme_code}. {content}".strip()
+
+            ids.append(item_id)
+            texts.append(embed_text)
             metadatas.append({
-                "domain": str(doc_domain),
-                "title": str(doc_title),
-                "source": str(doc_source)
+                "domain": domain,
+                "title": title,
+                "source": source,
+                "designation": designation,
             })
         print(f"[+] Loaded {len(items)} chunks from {os.path.relpath(path, settings.BASE_DIR)}")
 
