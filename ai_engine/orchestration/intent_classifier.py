@@ -17,24 +17,27 @@ class IntentClassifier:
             "pacs_pmfby": [
                 # PMFBY & Crop Insurance signatures
                 "pmfby", "fasal bima", "fasalbima", "crop insurance", "crop loss", "crop damage",
-                "damaged crop", "ruined crop", "destroyed crop", "standing crop", "harvest loss",
-                "post harvest", "post-harvest loss", "cut and spread", "hailstorm", "flood damage",
-                "flood", "flooding", "flash flood", "inundation", "drought", "dry spell", "unseasonal rain",
-                "unseasonal rains", "excess rainfall", "cyclone", "pest attack", "locust", "disease outbreak",
+                "damaged crop", "damaged crops", "ruined crop", "ruined crops", "destroyed crop", "destroyed crops",
+                "crops destroyed", "crop destroyed", "crops got destroyed", "crops got desteroyed", "desteroyed",
+                "standing crop", "harvest loss", "lost crops", "lost my crops", "crop failure", "crops failure",
+                "post harvest", "post-harvest loss", "cut and spread", "hailstorm", "flood damage", "rain damage",
+                "heavy rain", "heavy rains", "heavy rainfall", "rain", "rains", "rainfall", "excess rain", "excess rainfall",
+                "flood", "flooding", "flash flood", "inundation", "waterlogging", "submerged", "drought", "dry spell", "unseasonal rain",
+                "unseasonal rains", "cyclone", "pest attack", "locust", "disease outbreak",
                 "landslide", "cloud burst", "natural fire", "lightning", "72 hours", "72-hour", "72 hour",
                 "72hrs", "72 hrs", "within 72", "localized calamity", "crop cutting experiment", "cce",
                 "claim form", "crop claim", "insurance claim", "insurance company", "ncip", "ncip portal",
                 "crop insurance app", "crop destruction", "survey number", "insurance docket",
                 "insurance policy", "intimation", "claim status", "aic", "hsg", "crop survey",
                 # Multilingual PMFBY (Hindi, Tamil, Telugu, Marathi, Kannada, Bengali, Gujarati, Punjabi)
-                "फसल बीमा", "ओलावृष्टि", "बाढ़", "सूखा", "72 घंटे", "फसल नुकसान", "बीमा क्लेम", "अतिवृष्टि", "फसल क्षति", "जलभराव", "कीट प्रकोप", "दावा",
-                "பயிர் காப்பீடு", "பயிர் சேதம்", "ஆலங்கட்டி மழை", "வெள்ளம்", "72 மணி நேரம்", "பயிர் இழப்பு", "வறட்சி", "காப்பீட்டு கோரிக்கை",
-                "పంట భీమా", "పంట నష్టం", "వడగళ్ళు", "వరదలు", "72 గంటలు", "పంట బీమా క్లెయిమ్", "కరువు", "నష్టపరిహారం",
-                "पिक विमा", "गारपीट", "अतिवृष्टी", "पिकांचे नुकसान", "विमा दावा", "72 तास", "दुष्काळ", "कीड",
-                "ಬೆಳೆ ವಿಮೆ", "ಬೆಳೆ ಹಾನಿ", "ಆಲಿಕಲ್ಲು ಮಳೆ", "ನೆರೆ", "72 ಗಂಟೆ", "ವಿಮೆ ಕ್ಲೈಮ್",
-                "ফসল বিমা", "শস্য বীমা", "বন্যা", "শিলাবৃষ্টি", "খরা", "৭২ ঘণ্টা", "ক্ষতিপূরণ",
-                "પાક વીમો", "કમોસમી વરસાદ", "કરા", "પૂર", "૭૨ કલાક", "પાક નુકસಾನ",
-                "ਫ਼ਸਲ ਬੀਮਾ", "ਗੜੇਮਾਰੀ", "ਹੜ੍ਹ", "ਸੋਕਾ", "72 ਘੰਟੇ",
+                "फसल बीमा", "ओलावृष्टि", "बाढ़", "सूखा", "72 घंटे", "फसल नुकसान", "बीमा क्लेम", "अतिवृष्टि", "फसल क्षति", "जलभराव", "कीट प्रकोप", "दावा", "बारिश", "भारी बारिश",
+                "பயிர் காப்பீடு", "பயிர் சேதம்", "ஆலங்கட்டி மழை", "வெள்ளம்", "72 மணி நேரம்", "பயிர் இழப்பு", "வறட்சி", "காப்பீட்டு கோரிக்கை", "மழை", "கனமழை", "பயிர் அழிந்தது",
+                "పంట భీమా", "పంట నష్టం", "వడగళ్ళు", "వరదలు", "72 గంటలు", "పంట బీమా క్లెయిమ్", "కరువు", "నష్టపరిహారం", "వర్షం", "భారీ వర్షాలు",
+                "पिक विमा", "गारपीट", "अतिवृष्टी", "पिकांचे नुकसान", "विमा दावा", "72 तास", "दुष्काळ", "कीड", "पाऊस", "मुसळधार पाऊस",
+                "ಬೆಳೆ ವಿಮೆ", "ಬೆಳೆ ಹಾನಿ", "ಆಲಿಕಲ್ಲು ಮಳೆ", "ನೆರೆ", "72 ಗಂಟೆ", "ವಿಮೆ ಕ್ಲೈಮ್", "ಮಳೆ",
+                "ফসল বিমা", "শস্য বীমা", "বন্যা", "শিলাবৃষ্টি", "খরা", "৭২ ঘণ্টা", "ক্ষতিপূরণ", "বৃষ্টি",
+                "પાક વીમો", "કમોસમી વરસાદ", "કરા", "પૂર", "૭૨ કલાક", "પાક નુકસಾನ", "વરસાદ",
+                "ਫ਼ਸਲ ਬੀਮਾ", "ਗੜੇਮਾਰੀ", "ਹੜ੍ਹ", "ਸੋਕਾ", "72 ਘੰਟੇ", "ਮੀਂਹ",
                 # PACS Core Services & Operations signatures
                 "pacs", "primary agricultural credit society", "primary agriculture", "society secretary",
                 "pacs secretary", "pacs president", "society president", "managing committee", "pacs membership",
@@ -158,11 +161,11 @@ class IntentClassifier:
 
         # 2. Critical context boosters
         # 72-hour crop loss emergency booster
-        if any(w in cleaned_query for w in ["pmfby", "fasal bima", "hailstorm", "flood", "72 hour", "72-hour", "72hr", "crop loss", "पिक विमा", "பயிர் காப்பீடு", "बೆಳೆ ವಿಮೆ"]):
-            raw_scores["pacs_pmfby"] += 5
+        if any(w in cleaned_query for w in ["pmfby", "fasal bima", "hailstorm", "flood", "72 hour", "72-hour", "72hr", "crop loss", "crop damage", "crops damaged", "crops destroyed", "crop destroyed", "crops got desteroyed", "desteroyed", "heavy rain", "rain", "rains", "rainfall", "excess rain", "waterlogging", "inundation", "cyclone", "पिक विमा", "பயிர் காப்பீடு", "बೆಳೆ ವಿಮೆ", "பயிர் சேதம்"]):
+            raw_scores["pacs_pmfby"] += 6
 
-        # Grievance / dispute booster
-        if any(w in cleaned_query for w in ["reject", "refuse", "bribe", "not given", "delayed", "complaint", "harassment", "शिकायत", "புகார்", "तक्रार", "లంచం"]):
+        # Grievance / dispute / whom to meet booster
+        if any(w in cleaned_query for w in ["reject", "refuse", "bribe", "not given", "delayed", "complaint", "harassment", "solve", "how to solve", "whom to meet", "who to meet", "whom i will meet", "where to go", "officer to meet", "शिकायत", "புகார்", "தீர்வு", "யாரை சந்திக்க", "तक्रार", "లంచం"]):
             raw_scores["grievance"] += 4
 
         # Financial literacy booster

@@ -147,8 +147,8 @@ class OfficerRecommender:
             target_departments = ["Agricultural Engineering", "Agriculture", "DRDA"]
         elif any(w in q_lower for w in ["horticulture", "vegetable", "fruit", "polyhouse", "drip", "தோட்டக்கலை"]):
             target_departments = ["Horticulture", "Agriculture"]
-        elif any(w in q_lower for w in ["agriculture officer", "agri officer", "aao", "ada", "crop loss", "pmfby", "hailstorm", "flood", "விவசாய அதிகாரி", "வேளாண்மை", "வேளாண் உதவி அலுவலர்", "வேளாண் உதவி இயக்குனர்"]):
-            target_departments = ["Agriculture", "Horticulture", "District Administration"]
+        elif any(w in q_lower for w in ["agriculture officer", "agri officer", "aao", "ada", "crop loss", "pmfby", "hailstorm", "flood", "rain", "heavy rain", "rains", "rainfall", "crop damage", "crops destroyed", "crops got desteroyed", "desteroyed", "destroy", "ruined crop", "calamity", "விவசாய அதிகாரி", "வேளாண்மை", "வேளாண் உதவி அலுவலர்", "வேளாண் உதவி இயக்குனர்", "மழை", "பயிர் சேதம்"]):
+            target_departments = ["Agriculture", "Collectorate", "Revenue Division", "Taluk Office", "Co-operative", "Horticulture", "District Administration", "District Officers"]
         elif any(w in q_lower for w in ["cooperative", "sub registrar", "subregistrar", "joint registrar", "pacs", "கூட்டுறவு", "பதிவாளர்"]):
             target_departments = ["Co-operative", "Co-operation, Food & Consumer Protection", "District Administration"]
         elif any(w in q_lower for w in ["tahsildar", "rdo", "patta", "title deed", "land record", "தாசில்தார்", "நில ஆவணம்"]):
@@ -156,15 +156,15 @@ class OfficerRecommender:
         elif any(w in q_lower for w in ["fertilizer", "urea", "dap", "mrp", "black marketing", "overcharging", "உரம்", "யூரியா"]):
             target_departments = ["Co-operative", "Agriculture", "Civil Supplies", "Co-operation, Food & Consumer Protection"]
         elif "pacs_pmfby" in active_domains:
-            target_departments = ["Agriculture", "Co-operative", "Horticulture", "Co-operation, Food & Consumer Protection"]
+            target_departments = ["Agriculture", "Collectorate", "Co-operative", "Horticulture", "Revenue Division", "Taluk Office", "District Administration", "District Officers"]
         elif "grievance" in active_domains:
-            target_departments = ["Co-operative", "Agriculture", "Civil Supplies", "Revenue", "Taluk Office", "District Administration"]
+            target_departments = ["Co-operative", "Agriculture", "Civil Supplies", "Revenue", "Collectorate", "Taluk Office", "Revenue Division", "District Administration", "District Officers"]
         elif "farmer_scheme" in active_domains:
-            target_departments = ["Agriculture", "Horticulture", "Agricultural Engineering", "DRDA"]
+            target_departments = ["Agriculture", "Horticulture", "Agricultural Engineering", "Collectorate", "Rural Development", "DRDA"]
         elif "cooperative_law" in active_domains:
             target_departments = ["Co-operative", "Co-operation, Food & Consumer Protection", "District Administration"]
         else:
-            target_departments = ["Agriculture", "Co-operative", "Revenue", "Taluk Office", "District Administration", "District Officers"]
+            target_departments = ["Agriculture", "Collectorate", "Co-operative", "Revenue", "Taluk Office", "Revenue Division", "District Administration", "District Officers"]
 
         # Filter candidate officers from the verified database
         district_officers = [o for o in self.officers_db if o.get("district", "").lower() == district.lower()]
@@ -173,6 +173,8 @@ class OfficerRecommender:
 
         # Score matching officers
         scored_candidates = []
+        is_calamity_or_agri = any(w in q_lower for w in ["rain", "heavy rain", "flood", "calamity", "crop", "crops", "desteroyed", "destroyed", "pmfby", "damage", "loss", "hailstorm", "மழை", "பயிர்", "சேதம்"])
+
         for officer in district_officers:
             dept = officer.get("department", "")
             role = officer.get("designation_or_role", "") or officer.get("designation", "")
@@ -196,7 +198,7 @@ class OfficerRecommender:
 
             # Department match (higher score for top priority department)
             idx = target_departments.index(dept)
-            score += (50 - idx * 10)
+            score += (50 - idx * 5)
 
             # Locality / Block match
             if locality:
@@ -209,6 +211,16 @@ class OfficerRecommender:
                     score += 45
 
             # Role relevance matching specific query words
+            if is_calamity_or_agri:
+                if "joint director" in role.lower() or "jda" in role.lower() or "pmfby" in role.lower():
+                    score += 40
+                elif "pa to collector (agri)" in role.lower() or "deputy director of agriculture" in role.lower():
+                    score += 35
+                elif "assistant director of agriculture" in role.lower() or "ada" in role.lower() or "aao" in role.lower():
+                    score += 32
+                elif "district collector" in role.lower():
+                    score += 20
+
             if "supply officer" in q_lower and "supply officer" in role.lower():
                 score += 30
             if "sub registrar" in q_lower and ("sub registrar" in role.lower() or "subregistrar" in role.lower()):
