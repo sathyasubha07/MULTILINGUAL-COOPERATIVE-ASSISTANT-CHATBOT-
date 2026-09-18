@@ -39,12 +39,22 @@ def extract_doc_text(item):
     if "content" in item and item["content"]:
         return str(item["content"])
     parts = []
-    for k in ["title", "scheme_name", "act_name", "grievance_type", "summary", "description", "resolution_procedure"]:
+    # Primary textual fields
+    for k in ["title", "scheme_name", "act_name", "grievance_type", "summary", "description", 
+              "financial_benefit", "eligibility_criteria", "problem_statement", "statutory_remedy",
+              "override_authority", "resolution_procedure", "penalty_on_violator", "application_mode_online", "application_mode_offline"]:
         if k in item and item[k]:
-            parts.append(str(item[k]))
-    for list_k in ["key_provisions", "key_benefits", "eligibility", "citations", "applicable_laws"]:
-        if list_k in item and isinstance(item[list_k], list):
-            parts.extend([str(x) for x in item[list_k]])
+            parts.append(f"{k.replace('_', ' ').title()}: {str(item[k])}")
+    # List fields
+    for list_k in ["key_provisions", "key_benefits", "eligibility", "citations", "applicable_laws",
+                  "documents_required", "formula_breakdown", "financial_mechanics", "required_evidence", "critical_deadlines"]:
+        if list_k in item:
+            val = item[list_k]
+            if isinstance(val, list):
+                parts.extend([str(x) for x in val if isinstance(x, (str, int, float))])
+            elif isinstance(val, dict):
+                for dk, dv in val.items():
+                    parts.append(f"{dk}: {dv}")
     return " \n".join(parts) if parts else str(item)
 
 

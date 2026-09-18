@@ -43,13 +43,31 @@ class CooperativeLawEngine:
             "LAW_DEMOCRATIC_VOTING_RIGHTS": ["section 20", "one member one vote", "voting rights", "no proxy", "active member", "धारा 20", "मतदान अधिकार", "வாக்குரிமை", "ఓటు హక్కు"]
         }
 
+        q_tokens = set(re.findall(r'\w+', q_lower))
+
         for item in self.laws_catalog:
             code = item.get("topic_code", "")
             kw_list = triggers.get(code, [])
-            score = 0
+            score = 0.0
+
+            # 1. Trigger phrase match
             for kw in kw_list:
                 if kw in q_lower:
-                    score += 4 if " " in kw else 2
+                    score += 6.0 if " " in kw else 3.0
+
+            # 2. Section & Title match
+            sec = (item.get("section", "") + " " + item.get("title", "") + " " + code).lower()
+            if code.lower() in q_lower or (item.get("section", "").lower() and item.get("section", "").lower() in q_lower):
+                score += 8.0
+            for tok in q_tokens:
+                if len(tok) > 2 and tok in sec:
+                    score += 2.0
+
+            # 3. Summary & Provisions match
+            summary = item.get("summary", "").lower()
+            for tok in q_tokens:
+                if len(tok) > 3 and tok in summary:
+                    score += 1.0
 
             if score > 0:
                 scored.append((score, item))

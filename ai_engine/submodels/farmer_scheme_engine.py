@@ -75,13 +75,39 @@ class FarmerSchemeEngine:
             "AGRI-AWARDS": ["krishi vigyan puraskar", "national water awards", "dhanwantari award", "geoscience award", "कृषि पुरस्कार", "விருதுகள்"]
         }
 
+        # 1. Multi-Field + Trigger Weighted Scoring
+        q_tokens = set(re.findall(r'\w+', q_lower))
+
         for scheme in self.schemes_catalog:
             code = scheme.get("scheme_code", "")
             kw_list = triggers.get(code, [])
-            score = 0
+            score = 0.0
+
+            # Direct trigger phrase matches
             for kw in kw_list:
                 if kw in q_lower:
-                    score += 4 if " " in kw else 2
+                    score += 6.0 if " " in kw else 3.0
+
+            # Scheme Name and Code direct token matches
+            s_name = scheme.get("scheme_name", "").lower()
+            s_code = code.lower()
+            if s_code and (s_code in q_lower or s_code.replace("-", "") in q_lower.replace("-", "")):
+                score += 8.0
+            for tok in q_tokens:
+                if len(tok) > 2 and tok in s_name:
+                    score += 2.0
+
+            # Summary, Category & Benefit matches
+            summary = (scheme.get("summary", "") + " " + scheme.get("category", "")).lower()
+            for tok in q_tokens:
+                if len(tok) > 3 and tok in summary:
+                    score += 1.0
+
+            # Financial benefit & Eligibility token matches
+            benefit = scheme.get("financial_benefit", "").lower()
+            for tok in q_tokens:
+                if len(tok) > 3 and tok in benefit:
+                    score += 1.0
 
             if score > 0:
                 scored_schemes.append((score, scheme))
@@ -91,14 +117,14 @@ class FarmerSchemeEngine:
             scored_schemes.sort(key=lambda x: x[0], reverse=True)
             return [item[1] for item in scored_schemes]
 
-        # Fallback to top schemes
+        # Fallback to top schemes if no score
         return self.schemes_catalog[:3]
 
     def generate_scheme_guidance(self, query: str, language: str = "en") -> Dict[str, Any]:
         matched = self.find_matching_schemes(query)
         primary = matched[0]
 
-        guidance_text = self._format_scheme_response(primary, language)
+        guidance_text = self._format_scheme_response(primary, query, language)
 
         return {
             "matched_schemes": [s.get("scheme_name") for s in matched],
@@ -112,9 +138,11 @@ class FarmerSchemeEngine:
             "trust_score": primary.get("trust_score", 0.99)
         }
 
-    def _format_scheme_response(self, scheme: Dict[str, Any], language: str) -> str:
+    def _format_scheme_response(self, scheme: Dict[str, Any], query: str, language: str) -> str:
         name = scheme.get("scheme_name", "Farmer Welfare Scheme")
+        summary = scheme.get("summary", "")
         benefit = scheme.get("financial_benefit", "")
+        eligibility = scheme.get("eligibility_criteria", "")
         portal = scheme.get("official_portal", "https://myscheme.gov.in")
         docs = scheme.get("documents_required", [])
         online_mode = scheme.get("application_mode_online", "")
@@ -122,34 +150,75 @@ class FarmerSchemeEngine:
         citations = scheme.get("citations", [])
 
         docs_formatted = "\n".join([f"  - {d}" for d in docs])
+        q_low = query.lower()
+
+        is_asking_docs = any(w in q_low for w in ["document", "documents", "paper", "papers", "proof", "दस्तावेज़", "ஆவணங்கள்", "కాగితాలు"])
+        is_asking_subsidy = any(w in q_low for w in ["subsidy", "benefit", "amount", "money", "how much", "rate", "subvention", "अनुदान", "लाभ", "रुपये", "மானியம்", "தொகை", "సబ్సిడీ"])
+        is_asking_eligibility = any(w in q_low for w in ["eligible", "eligibility", "who can", "criteria", "पात्रता", "தகுதி", "అర్హత"])
+        is_asking_apply = any(w in q_low for w in ["how to apply", "apply", "registration", "register", "आवेदन", "விண்ணப்பிக்க", "దరఖాస్తు"])
 
         if language == "hi":
-            return (
-                f"### 📜 {name}\n\n"
-                f"**💰 वित्तीय लाभ एवं अनुदान सहायता:**\n{benefit}\n\n"
-                f"**📋 आवश्यक दस्तावेज़ चेकलिस्ट:**\n{docs_formatted}\n\n"
-                f"**📝 आवेदन प्रक्रिया:**\n"
-                f"- **ऑनलाइन आवेदन:** {online_mode} (आधिकारिक पोर्टल: [{portal}]({portal}))\n"
-                f"- **ऑफ़लाइन आवेदन:** {offline_mode}\n\n"
-                f"🏛️ **सत्यापित आधिकारिक संदर्भ:** {', '.join(citations)}"
-            )
+            sections = [f"### 📜 {name}\n"]
+            if is_asking_subsidy:
+                sections.append(f"**💰 वित्तीय लाभ एवं अनुदान सहायता:**\n{benefit}\n")
+                sections.append(f"**📌 योजना विवरण:**\n{summary}\n")
+            elif is_asking_docs:
+                sections.append(f"**📋 आवश्यक दस्तावेज़ चेकलिस्ट:**\n{docs_formatted}\n")
+                sections.append(f"**💰 वित्तीय लाभ:**\n{benefit}\n")
+            elif is_asking_eligibility:
+                sections.append(f"**🎯 पात्रता मानदंड:**\n{eligibility}\n")
+                sections.append(f"**💰 वित्तीय लाभ:**\n{benefit}\n")
+            elif is_asking_apply:
+                sections.append(f"**📝 आवेदन प्रक्रिया:**\n- **ऑनलाइन आवेदन:** {online_mode} (पोर्टल: [{portal}]({portal}))\n- **ऑफ़लाइन आवेदन:** {offline_mode}\n")
+                sections.append(f"**📋 आवश्यक दस्तावेज़:**\n{docs_formatted}\n")
+            else:
+                sections.append(f"**📌 योजना सारांश:**\n{summary}\n")
+                sections.append(f"**💰 वित्तीय लाभ एवं अनुदान:**\n{benefit}\n")
+                sections.append(f"**📋 आवश्यक दस्तावेज़:**\n{docs_formatted}\n")
+                sections.append(f"**📝 आवेदन प्रक्रिया:**\n- **ऑनलाइन:** {online_mode} (पोर्टल: [{portal}]({portal}))\n- **ऑफ़लाइन:** {offline_mode}\n")
+
+            sections.append(f"🏛️ **सत्यापित आधिकारिक संदर्भ:** {', '.join(citations)}")
+            return "\n".join(sections)
+
         elif language == "ta":
-            return (
-                f"### 📜 {name}\n\n"
-                f"**💰 நிதி உதவி மற்றும் மானிய விபரம்:**\n{benefit}\n\n"
-                f"**📋 தேவையான ஆவணங்கள்:**\n{docs_formatted}\n\n"
-                f"**📝 விண்ணப்பிக்கும் முறை:**\n"
-                f"- **ஆன்லைன்:** {online_mode} (இணையதளம்: [{portal}]({portal}))\n"
-                f"- **நேரடி விண்ணப்பம்:** {offline_mode}\n\n"
-                f"🏛️ **அரசாணை மற்றும் சான்றுகள்:** {', '.join(citations)}"
-            )
+            sections = [f"### 📜 {name}\n"]
+            if is_asking_subsidy:
+                sections.append(f"**💰 நிதி உதவி மற்றும் மானிய விபரம்:**\n{benefit}\n")
+                sections.append(f"**📌 திட்ட விளக்கம்:**\n{summary}\n")
+            elif is_asking_docs:
+                sections.append(f"**📋 தேவையான ஆவணங்கள்:**\n{docs_formatted}\n")
+                sections.append(f"**💰 நிதி உதவி:**\n{benefit}\n")
+            elif is_asking_eligibility:
+                sections.append(f"**🎯 தகுதி வரம்புகள்:**\n{eligibility}\n")
+                sections.append(f"**💰 நிதி உதவி:**\n{benefit}\n")
+            else:
+                sections.append(f"**📌 திட்ட விளக்கம்:**\n{summary}\n")
+                sections.append(f"**💰 நிதி உதவி மற்றும் மானிய விபரம்:**\n{benefit}\n")
+                sections.append(f"**📋 தேவையான ஆவணங்கள்:**\n{docs_formatted}\n")
+                sections.append(f"**📝 விண்ணப்பிக்கும் முறை:**\n- **ஆன்லைன்:** {online_mode} (இணையதளம்: [{portal}]({portal}))\n- **நேரடி:** {offline_mode}\n")
+
+            sections.append(f"🏛️ **அரசாணை மற்றும் சான்றுகள்:** {', '.join(citations)}")
+            return "\n".join(sections)
+
         else:
-            return (
-                f"### 📜 {name}\n\n"
-                f"**💰 Financial Benefit & Subsidy Slabs:**\n{benefit}\n\n"
-                f"**📋 Mandatory Document Checklist:**\n{docs_formatted}\n\n"
-                f"**📝 Application Procedure:**\n"
-                f"- **Online Mode:** {online_mode} (Official Portal: [{portal}]({portal}))\n"
-                f"- **Offline Mode:** {offline_mode}\n\n"
-                f"🏛️ **Verified Official Citations:** {', '.join(citations)}"
-            )
+            sections = [f"### 📜 {name}\n"]
+            if is_asking_subsidy:
+                sections.append(f"**💰 Financial Benefit & Subsidy Slabs:**\n{benefit}\n")
+                sections.append(f"**📌 Scheme Overview:**\n{summary}\n")
+            elif is_asking_docs:
+                sections.append(f"**📋 Mandatory Document Checklist:**\n{docs_formatted}\n")
+                sections.append(f"**💰 Financial Benefit:**\n{benefit}\n")
+            elif is_asking_eligibility:
+                sections.append(f"**🎯 Eligibility Criteria:**\n{eligibility}\n")
+                sections.append(f"**💰 Financial Benefit:**\n{benefit}\n")
+            elif is_asking_apply:
+                sections.append(f"**📝 Application Workflow:**\n- **Online Registration:** {online_mode} (Official Portal: [{portal}]({portal}))\n- **Offline Submission:** {offline_mode}\n")
+                sections.append(f"**📋 Required Documents:**\n{docs_formatted}\n")
+            else:
+                sections.append(f"**📌 Scheme Overview:**\n{summary}\n")
+                sections.append(f"**💰 Financial Benefit & Subsidy Slabs:**\n{benefit}\n")
+                sections.append(f"**📋 Mandatory Document Checklist:**\n{docs_formatted}\n")
+                sections.append(f"**📝 Application Workflow:**\n- **Online:** {online_mode} (Official Portal: [{portal}]({portal}))\n- **Offline:** {offline_mode}\n")
+
+            sections.append(f"🏛️ **Verified Official Citations:** {', '.join(citations)}")
+            return "\n".join(sections)

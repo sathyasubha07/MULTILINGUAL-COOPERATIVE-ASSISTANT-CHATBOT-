@@ -78,10 +78,11 @@ class IntentClassifier:
             ],
             "grievance": [
                 # Grievances, Disputes, Rejections & Statutory Escalation
-                "complaint", "file complaint", "register grievance", "lodge grievance", "reject", "rejected",
-                "rejection", "refusal", "refused", "deny", "denied", "delay", "delayed", "delayed payout",
-                "delayed claim", "deliberately delaying", "delaying", "not paid", "pending loan", "bribe", "demanding bribe", "asked for money",
-                "corruption", "fraud", "embezzlement", "harassment", "misconduct", "nepotism", "cheating", "cut", "commission",
+                "complaint", "file complaint", "register grievance", "lodge grievance", "reject", "rejected", "rejecting",
+                "rejection", "refusal", "refused", "refuse", "refusing", "deny", "denied", "denies", "denying",
+                "delay", "delayed", "delaying", "delayed payout", "delayed claim", "deliberately delaying",
+                "not paid", "not giving", "not provided", "not accepted", "refuses to", "refusing to", "pending loan",
+                "bribe", "demanding bribe", "asked for money", "corruption", "fraud", "embezzlement", "harassment", "misconduct", "nepotism", "cheating", "cut", "commission",
                 "overcharging", "above mrp", "mrp", "black marketing", "forced", "bundling", "tagging", "tie-in",
                 "no dues", "noc", "title deed", "land deed", "mortgage release", "return documents", "unauthorized deduction", "hidden charges",
                 "tampering", "voter list", "electoral roll", "removed name", "where to complain", "who will pay", "how to appeal",

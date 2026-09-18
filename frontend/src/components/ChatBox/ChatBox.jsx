@@ -230,18 +230,18 @@ export default function ChatBox() {
         const response = await sendTextQuery(transcriptText, language);
         addAssistantMessage(response);
       } else {
-        const response = await sendVoiceQuery(null, language);
         setMessages((prev) => [
           ...prev,
           {
             id: Date.now(),
-            sender: 'user',
-            text: `🎙️ "${response.transcription || 'PMFBY crop insurance query'}"`,
-            isVoice: true,
-            showTranscriptLabel: true,
+            sender: 'ai',
+            text: language === 'hi' 
+              ? 'कोई आवाज़ रिकॉर्ड नहीं हुई। कृपया माइक बटन दबाकर बोलें या नीचे प्रश्न लिखें।'
+              : language === 'ta'
+              ? 'குரல் பதிவு எதுவும் கிடைக்கவில்லை. தயவுசெய்து மைக்கை அழுத்திப் பேசவும் அல்லது தட்டச்சு செய்யவும்.'
+              : 'No audio was recorded. Please press the microphone button to speak or type your question in the text box.',
           },
         ]);
-        addAssistantMessage(response);
       }
     } catch {
       setMessages((prev) => [

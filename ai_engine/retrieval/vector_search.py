@@ -5,6 +5,8 @@ The index itself is built once (and rebuilt whenever data changes) via
 scripts/create_embeddings.py. This class connects to that persisted
 index and runs queries against it, with a resilient in-memory keyword fallback.
 """
+import os
+import json
 import re
 import math
 from typing import List, Dict, Any, Optional
@@ -26,6 +28,29 @@ class VectorSearchEngine:
             self.chroma_available = True
         except Exception:
             self.chroma_available = False
+
+        self._auto_load_default_docs()
+
+    def _auto_load_default_docs(self):
+        source_files = [
+            os.path.join(settings.DATABASE_PATH, "schemes", "farmer_schemes.json"),
+            os.path.join(settings.DATABASE_PATH, "financial", "financial_literacy.json"),
+            os.path.join(settings.DATABASE_PATH, "grievances", "grievance_catalog.json"),
+            os.path.join(settings.DATABASE_PATH, "pacs", "pacs_bylaws.json"),
+            os.path.join(settings.DATABASE_PATH, "pmfby", "pmfby_guidelines.json"),
+            os.path.join(settings.DATABASE_PATH, "laws", "cooperative_laws.json"),
+        ]
+        docs = []
+        for path in source_files:
+            if os.path.exists(path):
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        items = json.load(f)
+                        if isinstance(items, list):
+                            docs.extend(items)
+                except Exception:
+                    pass
+        self.indexed_docs = docs
 
     def load_index(self, docs: List[Dict[str, Any]] = None):
         if docs:

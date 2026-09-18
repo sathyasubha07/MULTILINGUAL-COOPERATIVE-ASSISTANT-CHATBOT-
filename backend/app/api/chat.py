@@ -75,8 +75,36 @@ async def handle_voice_query(
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
         
-        if not transcription:
-            transcription = "PMFBY crop insurance claim procedure"
+        if not transcription or not transcription.strip():
+            msg_map = {
+                "en": "No clear speech was detected. Please speak into the microphone or type your question in the box below.",
+                "hi": "कोई स्पष्ट आवाज़ नहीं मिली। कृपया माइक्रोफ़ोन में स्पष्ट बोलें या नीचे अपना प्रश्न लिखें।",
+                "ta": "தெளிவான குரல் பதிவு எதுவும் கண்டறியப்படவில்லை. தயவுசெய்து மைக்கில் தெளிவாகப் பேசவும் அல்லது உங்கள் கேள்வியை தட்டச்சு செய்யவும்.",
+                "te": "స్పష్టమైన వాయిస్ నమోదు కాలేదు. దయచేసి మైక్రోఫోన్‌లో స్పష్టంగా మాట్లాడండి లేదా మీ ప్రశ్నను టైప్ చేయండి.",
+                "mr": "स्पष्ट आवाज आढळला नाही. कृपया मायक्रोफोनमध्ये स्पष्ट बोला किंवा खाली तुमचा प्रश्न टाइप करा."
+            }
+            user_msg = msg_map.get(detected_lang, msg_map["en"])
+            return {
+                "query": "",
+                "transcription": "",
+                "language": detected_lang,
+                "domain": "general",
+                "active_domains": [],
+                "is_multi_domain": False,
+                "confidence": 1.0,
+                "answer": user_msg,
+                "response": user_msg,
+                "recommended_officer": None,
+                "citations": [],
+                "verification_status": True,
+                "trust_score": 1.0,
+                "verified_facts": [],
+                "corrections_applied": [],
+                "source_authority": "Smart Cooperative AI Voice Assistant",
+                "procedure": None,
+                "extracted_slots": {},
+                "authorities": []
+            }
 
         rag_res = chat_service.process_chat(
             query=transcription,
@@ -84,6 +112,8 @@ async def handle_voice_query(
         )
         rag_res["transcription"] = transcription
         return rag_res
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

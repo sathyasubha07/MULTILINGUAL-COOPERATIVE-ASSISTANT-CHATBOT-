@@ -79,11 +79,12 @@ class FusionSynthesizer:
         recommended_officer_data = None
         if officer_rec:
             fused_answer = fused_answer + "\n\n" + officer_rec["recommendation_text"]
-            officer_obj = officer_rec["officer"]
+            officer_obj = officer_rec.get("officer")
             recommended_officer_data = officer_obj
-            all_citations.append(officer_obj.get("source", "District Administration Official Directory"))
-            off_name = officer_obj.get("name") or "Designated Officer"
-            all_verified_facts.append(f"Verified District Official: {off_name} ({officer_obj.get('designation_or_role')})")
+            if officer_obj:
+                all_citations.append(officer_obj.get("source", "District Administration Official Directory"))
+                off_name = officer_obj.get("name") or "Designated Officer"
+                all_verified_facts.append(f"Verified District Official: {off_name} ({officer_obj.get('designation_or_role')})")
 
         avg_trust_score = round(sum(trust_scores) / len(trust_scores), 2) if trust_scores else 0.98
         unique_citations = list(dict.fromkeys(all_citations))

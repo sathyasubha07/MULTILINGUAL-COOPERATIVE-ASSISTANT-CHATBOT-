@@ -46,13 +46,31 @@ class FinancialLiteracyEngine:
             "FIN_CIBIL_CALAMITY_RESTRUCTURING": ["cibil", "credit score", "restructuring", "calamity loan", "moratorium", "npa", "ऋण पुनर्गठन", "सिबिल स्कोर", "கடன் மறுசீரமைப்பு"]
         }
 
+        q_tokens = set(re.findall(r'\w+', q_lower))
+
         for item in self.fin_catalog:
             code = item.get("topic_code", "")
             kw_list = triggers.get(code, [])
-            score = 0
+            score = 0.0
+
+            # 1. Trigger phrase match
             for kw in kw_list:
                 if kw in q_lower:
-                    score += 4 if " " in kw else 2
+                    score += 6.0 if " " in kw else 3.0
+
+            # 2. Title & Code match
+            title = (item.get("title", "") + " " + code).lower()
+            if code.lower() in q_lower:
+                score += 8.0
+            for tok in q_tokens:
+                if len(tok) > 2 and tok in title:
+                    score += 2.0
+
+            # 3. Summary & Breakdown match
+            summary = item.get("summary", "").lower()
+            for tok in q_tokens:
+                if len(tok) > 3 and tok in summary:
+                    score += 1.0
 
             if score > 0:
                 scored.append((score, item))

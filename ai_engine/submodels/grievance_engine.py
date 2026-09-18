@@ -41,13 +41,31 @@ class GrievanceEngine:
             "FINANCIAL_FRAUD_MISAPPROPRIATION": ["embezzlement", "fraud", "scam", "bogus loan", "gaban", "घोटाला", "फर्जी लोन", "முறைகேடு", "మోసం", "पैशांची अफरातफर"]
         }
 
+        q_tokens = set(re.findall(r'\w+', q_lower))
+
         for item in self.grievances_catalog:
             code = item.get("grievance_code", "")
             kw_list = triggers.get(code, [])
-            score = 0
+            score = 0.0
+
+            # 1. Trigger phrase match
             for kw in kw_list:
                 if kw in q_lower:
-                    score += 4 if " " in kw else 2
+                    score += 6.0 if " " in kw else 3.0
+
+            # 2. Category & Code match
+            cat = (item.get("category", "") + " " + code).lower()
+            if code.lower() in q_lower:
+                score += 8.0
+            for tok in q_tokens:
+                if len(tok) > 2 and tok in cat:
+                    score += 2.0
+
+            # 3. Problem statement & Remedy match
+            prob = (item.get("problem_statement", "") + " " + item.get("statutory_remedy", "")).lower()
+            for tok in q_tokens:
+                if len(tok) > 3 and tok in prob:
+                    score += 1.0
 
             if score > 0:
                 scored.append((score, item))
