@@ -142,12 +142,12 @@ export default function ChatBox() {
         id: newMsgId,
         sender: 'ai',
         text: response.answer,
-        responseType: response.responseType,
-        officerRecommendation: response.officerRecommendation,
+        responseType: response.responseType || response.domain,
+        officerRecommendation: response.recommended_officer || response.officerRecommendation,
         citations: response.citations || [],
         verificationStatus: response.verificationStatus,
         trustScore: response.trustScore || 0.98,
-        activeDomains: response.activeDomains || [response.responseType || 'general'],
+        activeDomains: response.activeDomains || [response.domain || 'general'],
         verifiedFacts: response.verifiedFacts || [],
         sourceAuthority: response.sourceAuthority,
       },
@@ -361,7 +361,7 @@ export default function ChatBox() {
                     </div>
                   )}
                 </div>
-                {!isUser && msg.responseType === 'grievance' && msg.officerRecommendation && (
+                {!isUser && msg.officerRecommendation && (
                   <OfficerRecommendationCard officer={msg.officerRecommendation} />
                 )}
               </div>

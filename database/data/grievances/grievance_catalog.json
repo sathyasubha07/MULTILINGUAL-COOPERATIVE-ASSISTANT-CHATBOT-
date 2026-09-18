@@ -446,5 +446,51 @@
     "penalty_on_violator": "Dissolution and supersession of Managing Committee, personal property attachment under Surcharge Section 88, and criminal FIR under IPC/BNS.",
     "is_verified": true,
     "trust_score": 0.99
+  },
+  {
+    "id": "GRV-11",
+    "grievance_code": "IRRIGATION_WATER_DISPUTE",
+    "category": "Irrigation Water Scarcity, Canal Supply Disruption & Water Grievance",
+    "domain": "grievance",
+    "severity": "High",
+    "problem_statement": "Farmer or village facing irregular water supply, canal tail-end water blockage, dried borewell, or lack of irrigation infrastructure causing severe crop stress.",
+    "statutory_remedy": "1. For Farm Level Solution: Avail 55% Government Subsidy under PMKSY (Per Drop More Crop) for Drip/Sprinkler Irrigation and 60% Subsidy under PM-KUSUM for Solar Irrigation Pumps. 2. For Administrative Canal/Community Water Grievance: Submit formal petition at the Monthly Farmers Grievance Redressal Day at the District Collectorate (held every month) or approach the Executive Engineer, Water Resources Department (WRD / PWD) and Water Users Association (WUA). 3. For Village/Drinking Water: Lodge petition with Village Panchayat Secretary / BDO or call the State CM Helpline (1100).",
+    "override_authority": "District Collector / Executive Engineer (Water Resources Department - WRD / PWD) / Assistant Director of Agriculture (ADA)",
+    "legal_sections": [
+      "PMKSY Operational Guidelines 2023 (Micro Irrigation Fund)",
+      "MNRE PM-KUSUM Scheme Guidelines Component B",
+      "Tamil Nadu Farmers Management of Irrigation Systems Act / State Irrigation Acts",
+      "District Administration Farmers Grievance Day Regulations"
+    ],
+    "sla_days": 15,
+    "escalation_ladder": [
+      {
+        "level": 1,
+        "authority": "Assistant Agricultural Officer (AAO) / Panchayat Secretary",
+        "timeline": "7 Days",
+        "action": "Apply for PMKSY 55% Drip/Sprinkler Subsidy and PM-KUSUM 60% Solar Pump on the Agrisnet / e-Thottam / myScheme portal."
+      },
+      {
+        "level": 2,
+        "authority": "Executive Engineer (Water Resources / PWD) & WUA President",
+        "timeline": "15 Days",
+        "action": "Submit formal written grievance for canal water release, desilting, and tail-end sluice regulation."
+      },
+      {
+        "level": 3,
+        "authority": "District Collector (Monthly Farmers Grievance Day)",
+        "timeline": "30 Days",
+        "action": "Present petition in person during the District Collectorate Farmers Grievance Redressal Meeting for immediate on-spot directive."
+      }
+    ],
+    "required_evidence": [
+      "Land Ownership Documents (Patta / Chitta / 7-12 / Adangal copy showing standing crops)",
+      "Survey number and field location details",
+      "Photographs or joint petition of affected farmers in the ayacut area",
+      "Aadhaar Card and active contact number"
+    ],
+    "penalty_on_violator": "Statutory inspection and punitive action against unauthorized water diversion/tapping under Irrigation Acts; prioritized sanction of micro-irrigation subsidies.",
+    "is_verified": true,
+    "trust_score": 0.99
   }
 ]

@@ -68,13 +68,15 @@ class IntentClassifier:
                 "fertilizer subsidy", "dbt fertilizer", "myscheme", "myscheme portal", "nabard subsidy",
                 "soil health card", "shc", "per drop more crop", "micro irrigation subsidy", "drip irrigation subsidy",
                 "sprinkler subsidy", "pmksy", "farmer scheme", "farmer subsidy", "subsidy", "grant", "yojana",
-                "krishi yojana", "sarkari yojana", "state subsidy",
+                "krishi yojana", "sarkari yojana", "state subsidy", "water problem", "water scarcity", "water shortage",
+                "water not coming", "irrigation water", "borewell", "farm pond", "drip", "sprinkler",
+                "electricity", "power cut", "power supply", "pump set", "solar motor", "electric motor", "agricultural power",
                 # Multilingual Schemes
                 "पीएम किसान", "किसान सम्मान निधि", "पीएम कुसुम", "सोलर पंप", "सब्सिडी", "अनुदान", "किस्त", "ई-केवाईसी",
-                "कृषि अवसंरचना कोष", "प्राकृतिक खेती", "कृषि यंत्र सब्सिडी", "ड्रिप सिंचाई", "मृदा स्वास्थ्य कार्ड",
-                "திட்டம்", "விவசாய மானியம்", "சோலார் பம்ப்", "பிஎம் கிசான்", "தவணை", "இயற்கை விவசாயம்",
-                "పథకం", "రైతు సబ్సిడీ", "సౌర పంపు", "పీఎం కిసాన్", "వాయిదా", "సహజ వ్యవసాయం",
-                "कृषी योजना", "सौर पंप", "अनुदान योजना", "हप्ता", "सेंद्रिय शेती", "ठिबक सिंचन"
+                "कृषि अवसंरचना कोष", "प्राकृतिक खेती", "कृषि यंत्र सब्सिडी", "ड्रिप सिंचाई", "मृदा स्वास्थ्य कार्ड", "पानी की समस्या", "सिंचाई पानी", "बिजली की समस्या",
+                "திட்டம்", "விவசாய மானியம்", "சோலார் பம்ப்", "பிஎம் கிசான்", "தவணை", "இயற்கை விவசாயம்", "தண்ணீர் பிரச்சனை", "பாசன நீர்", "சொட்டு நீர் பாசனம்", "மின்வெட்டு", "மின்சாரம்",
+                "పథకం", "రైతు సబ్సిడీ", "సౌర పంపు", "పీఎం కిసాన్", "వాయిదా", "సహజ వ్యవసాయం", "నీటి సమస్య", "సాగునీరు", "విద్యుత్ సమస్య",
+                "कृषी योजना", "सौर पंप", "अनुदान योजना", "हप्ता", "सेंद्रिय शेती", "ठिबक सिंचन", "पाण्याची समस्या", "वीज समस्या"
             ],
             "grievance": [
                 # Grievances, Disputes, Rejections & Statutory Escalation
@@ -82,6 +84,8 @@ class IntentClassifier:
                 "rejection", "refusal", "refused", "refuse", "refusing", "deny", "denied", "denies", "denying",
                 "delay", "delayed", "delaying", "delayed payout", "delayed claim", "deliberately delaying",
                 "not paid", "not giving", "not provided", "not accepted", "refuses to", "refusing to", "pending loan",
+                "water problem", "water not coming", "canal water", "water dispute", "water supply", "drinking water", "panchayat water",
+                "charging extra", "extra money", "extra charge", "extra cost", "more money", "above price", "high price", "overpriced", "fertilizer price",
                 "bribe", "demanding bribe", "asked for money", "corruption", "fraud", "embezzlement", "harassment", "misconduct", "nepotism", "cheating", "cut", "commission",
                 "overcharging", "above mrp", "mrp", "black marketing", "forced", "bundling", "tagging", "tie-in",
                 "no dues", "noc", "title deed", "land deed", "mortgage release", "return documents", "unauthorized deduction", "hidden charges",
@@ -94,11 +98,11 @@ class IntentClassifier:
                 "escalate", "escalation", "unjust", "arbitrary", "show cause notice", "dgrc", "sgrc",
                 "district grievance redressal committee", "state grievance committee", "dispute", "investigation",
                 # Multilingual Grievance
-                "शिकायत", "अपील", "रद्द", "अस्वीकार", "मना कर दिया", "मना किया", "नहीं ले रहा", "नहीं दिया", "नहीं दे रहा", "देरी", "रिश्वत", "घूस", "भ्रष्टाचार", "गबन", "जबरन", "अधिक पैसे", "कमीशन", "शिकायत कहाँ करें",
+                "शिकायत", "अपील", "रद्द", "अस्वीकार", "मना कर दिया", "मना किया", "नहीं ले रहा", "नहीं दिया", "नहीं दे रहा", "देरी", "रिश्वत", "घूस", "भ्रष्टाचार", "गबन", "जबरन", "अधिक पैसे", "कमीशन", "शिकायत कहाँ करें", "पानी की समस्या", "नहर का पानी",
                 "सहायक निबंधक", "अधिकारी", "निवारण", "धारा 19", "लोकपाल", "न्यायाधिकरण",
-                "புகார்", "மேல்முறையீடு", "நிராகரிப்பு", "தாமதம்", "இழுத்தடிக்கிறார்கள்", "முறையிடுவது", "லஞ்சம்", "அதிகாரி", "பிரிவு 19", "முறையீடு", "கூடுதல் விலை",
-                "ఫిర్యాదు", "అప్పీల్", "తిరస్కరణ", "ఆలస్యం", "అవినీతి", "లంచం", "అధికారి", "సెక్షన్ 19", "ఎక్కడ ఫిర్యాదు చేయాలి",
-                "तक्रार", "अपील", "नाकारले", "विलंब", "लाच", "सहकार निबंधक", "भ्रष्टाचार", "चौकशी", "तक्रार कुठे करावी", "काळाबाजार"
+                "புகார்", "மேல்முறையீடு", "நிராகரிப்பு", "தாமதம்", "இழுத்தடிக்கிறார்கள்", "முறையிடுவது", "லஞ்சம்", "அதிகாரி", "பிரிவு 19", "முறையீடு", "கூடுதல் விலை", "தண்ணீர் பிரச்சனை", "குடிநீர் பிரச்சனை", "வாய்க்கால் தண்ணீர்",
+                "ఫిర్యాదు", "అప్పీల్", "తిరస్కరణ", "ఆలస్యం", "అవినీతి", "లంచం", "అధికారి", "సెక్షన్ 19", "ఎక్కడ ఫిర్యాదు చేయాలి", "నీటి సమస్య",
+                "तक्रार", "अपील", "नाकारले", "विलंब", "लाच", "सहकार निबंधक", "भ्रष्टाचार", "चौकशी", "तक्रार कुठे करावी", "काळाबाजार", "पाण्याची समस्या"
             ],
             "cooperative_law": [
                 # Legal Legislation & Governance

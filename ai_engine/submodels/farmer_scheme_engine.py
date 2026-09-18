@@ -51,10 +51,10 @@ class FarmerSchemeEngine:
             "FPO-10000": ["fpo", "farmer producer organization", "10000 fpo", "equity grant", "एफपीओ", "உழவர் உற்பத்தியாளர் அமைப்பு", "రైతు ఉత్పత్తిదారుల"],
             "NBHM": ["nbhm", "beekeeping", "honey mission", "bee box", "मधुमक्खी पालन", "शहद मिशन", "தேனீ வளர்ப்பு", "తేనెటీగల పెంపకం"],
             "PM-KMY": ["pm-kmy", "pmkmy", "maan-dhan", "maandhan", "farmer pension", "3000 pension", "₹3,000", "किसान पेंशन", "விவசாயிகள் ஓய்வூதியம்", "రైతు పెన్షన్"],
-            "PM-KUSUM": ["kusum", "solar pump", "solar subsidy", "solar tubewell", "5 hp", "7.5 hp", "सोलर पंप", "சோலார் பம்ப்", "సౌర పంపు", "सौर कृषी पंप"],
-            "SMAM": ["smam", "mechanization", "tractor subsidy", "drone subsidy", "kisan drone", "power tiller", "rotavator", "कृषि यंत्र", "ட்ராக்டர் மானியம்"],
+            "PM-KUSUM": ["kusum", "solar pump", "solar subsidy", "solar tubewell", "solar water pump", "water pump", "irrigation pump", "borewell motor", "5 hp", "7.5 hp", "3 hp", "power cut pump", "power cut", "electricity problem", "power supply", "feeder solarization", "agricultural pump", "pump set", "solar motor", "power cut problem", "सोलर पंप", "சோலார் பம்ப்", "சவுர பம்பு", "सौर कृषी पंप"],
+            "SMAM": ["smam", "mechanization", "tractor subsidy", "drone subsidy", "kisan drone", "rotavator", "कृषि यंत्र", "ட்ராக்டர் மானியம்"],
             "PKVY": ["pkvy", "organic farming", "paramparagat krishi", "50000", "50,000", "जैविक खेती", "இயற்கை விவசாயம்"],
-            "PMKSY-PDMC": ["pmksy", "drip irrigation", "sprinkler", "micro irrigation", "per drop more crop", "ड्रिप सिंचाई", "சொட்டு நீர் பாசனம்", "బిందు సేద్యం"],
+            "PMKSY-PDMC": ["pmksy", "drip irrigation", "sprinkler", "micro irrigation", "per drop more crop", "water problem", "water scarcity", "water shortage", "irrigation water", "water not coming", "borewell water", "farm water", "drip", "sprinkler subsidy", "ड्रिप सिंचाई", "पानी की समस्या", "सिंचाई पानी", "சொட்டு நீர் பாசனம்", "தண்ணீர் பிரச்சனை", "பாசன நீர்", "நீటి సమస్య", "సాగునీరు"],
             "PMAY-G": ["pmay", "awaas", "awas yojana", "pucca house", "rural housing", "120000", "1,20,000", "आवास योजना", "வீட்டு வசதி திட்டம்"],
             "NLM-AHIDF": ["livestock", "goat farming", "sheep farming", "poultry subsidy", "piggery", "पशुधन मिशन", "बकरी पालन", "ஆடு வளர்ப்பு"],
             "PMMSY": ["pmmsy", "matsya", "fisheries", "fish pond", "biofloc", "மத்ஸ்ய சம்பதா", "मछली पालन", "மீன்வள மேம்பாடு"],
@@ -72,7 +72,7 @@ class FarmerSchemeEngine:
             "PMGSY": ["pmgsy", "gram sadak", "rural road", "सड़क योजना", "கிராம சாலை"],
             "PMAAGY-PMAGY": ["adi adarsh", "adarsh gram", "pm-ajay", "आदर्श ग्राम", "மாதிரி கிராமம்"],
             "PM-VANBANDHU": ["vanbandhu", "tribal scholarship", "वनबंधु कल्याण", "பழங்குடியினர் உதவித்தொகை"],
-            "AGRI-AWARDS": ["krishi vigyan puraskar", "national water awards", "dhanwantari award", "geoscience award", "कृषि पुरस्कार", "விருதுகள்"]
+            "AGRI-AWARDS": ["krishi vigyan puraskar", "national water awards competition", "dhanwantari award", "geoscience award", "कृषि पुरस्कार"]
         }
 
         # 1. Multi-Field + Trigger Weighted Scoring

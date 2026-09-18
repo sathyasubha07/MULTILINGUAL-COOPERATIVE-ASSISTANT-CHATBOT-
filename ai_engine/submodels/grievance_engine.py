@@ -38,7 +38,8 @@ class GrievanceEngine:
             "COOP_ELECTION_VOTER_FRAUD": ["election", "voter list", "electoral roll", "voting right", "चुनाव", "मतदाता सूची", "தேர்தல் முறைகேடு", "ఎన్నికల ఓటర్ జాబితా", "निवडणूक गैरव्यवहार"],
             "DIVIDEND_SHARE_WITHHOLDING": ["dividend", "bonus", "share money", "लाभांश", "डिविडेंड", "பங்கு லாபம்", "డివిడెండ్", "लाभांश मिळाला नाही"],
             "UNAUTHORIZED_BANK_DEDUCTIONS": ["unauthorized deduction", "hidden charges", "insurance deducted without permission", "खाते से अवैध कटौती", "அனுமதியின்றி பிடித்தம்", "ఖాతా నుండి అనధికారిక కట్", "विनापरवानगी पैसे कपात"],
-            "FINANCIAL_FRAUD_MISAPPROPRIATION": ["embezzlement", "fraud", "scam", "bogus loan", "gaban", "घोटाला", "फर्जी लोन", "முறைகேடு", "మోసం", "पैशांची अफरातफर"]
+            "FINANCIAL_FRAUD_MISAPPROPRIATION": ["embezzlement", "fraud", "scam", "bogus loan", "gaban", "घोटाला", "फर्जी लोन", "முறைகேடு", "మోసం", "पैशांची अफरातफर"],
+            "IRRIGATION_WATER_DISPUTE": ["water problem", "water not coming", "water scarcity", "water shortage", "canal water", "irrigation water", "water dispute", "drinking water", "water supply", "panchayat water", "borewell dried", "irrigation delay", "தண்ணீர் பிரச்சனை", "குடிநீர் பிரச்சனை", "வாய்க்கால் தண்ணீர்", "பாசன நீர்", "पानी की समस्या", "नहर का पानी", "सिंचाई समस्या", "நீటి సమస్య"]
         }
 
         q_tokens = set(re.findall(r'\w+', q_lower))
