@@ -21,7 +21,8 @@ try:
         GROQ_API_KEY: Optional[str] = None
         GEMINI_API_KEY: Optional[str] = None
         OPENAI_API_KEY: Optional[str] = None
-        
+        EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+
         BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         DATABASE_PATH: str = os.path.join(BASE_DIR, "database", "data")
         AUTHORITIES_PATH: str = os.path.join(BASE_DIR, "database", "authorities", "authorities.json")
@@ -45,11 +46,11 @@ except ImportError:
         GROQ_API_KEY = os.getenv("GROQ_API_KEY")
         GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
         OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-        
+        EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         DATABASE_PATH = os.path.join(BASE_DIR, "database", "data")
         AUTHORITIES_PATH = os.path.join(BASE_DIR, "database", "authorities", "authorities.json")
         VECTOR_DB_PATH = os.path.join(BASE_DIR, "database", "vector_db")
 
     settings = FallbackSettings()
-
