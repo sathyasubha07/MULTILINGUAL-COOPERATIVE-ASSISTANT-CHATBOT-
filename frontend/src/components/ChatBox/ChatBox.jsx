@@ -192,21 +192,39 @@ export default function ChatBox() {
     stopCurrentAudio();
     setIsLoading(true);
 
+    const spokenText = transcriptText ? transcriptText.trim() : '';
+
     try {
-      if (audioBlob) {
+      if (spokenText) {
+        // User spoke and Web Speech API captured text -> send directly to unified pipeline
         setMessages((prev) => [
           ...prev,
           {
             id: Date.now(),
             sender: 'user',
-            text: transcriptText ? `🎙️ "${transcriptText}"` : '🎙️ Audio query recording...',
+            text: `🎙️ "${spokenText}"`,
             isVoice: true,
             showTranscriptLabel: true,
           },
         ]);
 
-        const response = await sendVoiceQuery(audioBlob, language);
-        if (response.transcription && !transcriptText) {
+        const response = await sendTextQuery(spokenText, language);
+        addAssistantMessage(response);
+      } else if (audioBlob) {
+        // Fallback for audio blob without browser transcript
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now(),
+            sender: 'user',
+            text: '🎙️ Audio query recording...',
+            isVoice: true,
+            showTranscriptLabel: true,
+          },
+        ]);
+
+        const response = await sendVoiceQuery(audioBlob, language, spokenText);
+        if (response.transcription) {
           setMessages((prev) =>
             prev.map((m) =>
               m.isVoice && m.text === '🎙️ Audio query recording...'
@@ -215,19 +233,6 @@ export default function ChatBox() {
             )
           );
         }
-        addAssistantMessage(response);
-      } else if (transcriptText) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now(),
-            sender: 'user',
-            text: `🎙️ "${transcriptText}"`,
-            isVoice: true,
-            showTranscriptLabel: true,
-          },
-        ]);
-        const response = await sendTextQuery(transcriptText, language);
         addAssistantMessage(response);
       } else {
         setMessages((prev) => [

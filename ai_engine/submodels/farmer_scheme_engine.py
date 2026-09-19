@@ -41,11 +41,11 @@ class FarmerSchemeEngine:
             "AMI-ISAM": ["ami", "isam", "rural godown", "storage subsidy", "ग्रामीण गोदाम", "கிடங்கு மானியம்", "గ్రామీణ గోదాము"],
             "NMEO-OP": ["nmeo", "oil palm", "palm oil", "palm plantation", "ऑयल पाम", "पाम की खेती", "ஆயில் பாம்", "ఆయిల్ పామ్"],
             "PMJVM-TRIFED": ["pmjvm", "trifed", "van dhan", "minor forest produce", "vdvk", "वन धन", "जनजातीय", "பழங்குடியினர்", "వన్ ధన్"],
-            "TDPS-TEA": ["tea board", "small tea grower", "tea plucking", "tea mechanization", "चाय विकास", "தேயிலை", "టీ అభివృద్ధి"],
-            "NFSM": ["nfsm", "food security mission", "seed minikit", "pulses subsidy", "nutri cereals", "खाद्य सुरक्षा मिशन", "बीज मिनीकिट", "உணவுப் பாதுகாப்பு", "ఆహార భద్రత"],
+            "TDPS-TEA": ["tea board", "small tea grower", "small tea growers", "tea plucking", "tea mechanization", "tea plantation", "चाय विकास", "தேயிலை", "టీ అభివృద్ధి"],
+            "NFSM": ["nfsm", "food security mission", "seed minikit", "pulses subsidy", "nutri cereals", "paddy seed", "wheat seed", "pulses seed", "certified seed", "खाद्य सुरक्षा मिशन", "बीज मिनीकिट", "உணவுப் பாதுகாப்பு", "சான்றளிக்கப்பட்ட விதை", "ఆహార భద్రత"],
             "SHC": ["soil health", "soil test", "soil testing", "soil card", "मिट्टी परीक्षण", "मृदा स्वास्थ्य", "மண் பரிசோதனை", "నేల పరీక్ష"],
-            "ENAM": ["e-nam", "enam", "e nam", "mandi online", "online mandi", "mandi trade", "ई-नाम", "மண்டி வர்த்தகம்", "ఈ-నామ్"],
-            "MIDH": ["midh", "polyhouse", "poly house", "shade net", "mulching", "orchard", "greenhouse", "mushroom", "पॉलीहाउस", "शेडनेट", "தோட்டக்கலை"],
+            "ENAM": ["e-nam", "enam", "e nam", "mandi online", "online mandi", "mandi trade", "ई-नाम", "மண்டி வர்த்தகம்", "ఈ-நாம்"],
+            "MIDH": ["midh", "tomato", "tomato seed", "tomato seeds", "vegetable seeds", "vegetable seed", "seeds", "seed", "sowing", "sow", "seedling", "seedlings", "horticulture", "polyhouse", "poly house", "shade net", "mulching", "orchard", "greenhouse", "mushroom", "vegetable cultivation", "தக்காளி", "விதை", "விதைகள்", "தக்காளி விதை", "காய்கறி விதை", "நாற்று", "தோட்டக்கலை", "பாலிஹவுஸ்", "पॉलीहाउस", "शेडनेट", "टमाटर के बीज", "सब्जी बीज", "தோட்டக்கலை துறை"],
             "RKVY-RAFTAAR": ["rkvy", "raftaar", "agri startup", "startup grant", "incubator", "रफ्तार", "एग्री-स्टार्टअप", "தொழில்முனைவு"],
             "PM-AASHA": ["pm-aasha", "pmaasha", "msp", "minimum support price", "procurement", "price support", "एमएसपी", "न्यूनतम समर्थन मूल्य", "குறைந்தபட்ச ஆதரவு விலை"],
             "FPO-10000": ["fpo", "farmer producer organization", "10000 fpo", "equity grant", "एफपीओ", "உழவர் உற்பத்தியாளர் அமைப்பு", "రైతు ఉత్పత్తిదారుల"],
@@ -152,14 +152,24 @@ class FarmerSchemeEngine:
         docs_formatted = "\n".join([f"  - {d}" for d in docs])
         q_low = query.lower()
 
-        is_asking_docs = any(w in q_low for w in ["document", "documents", "paper", "papers", "proof", "दस्तावेज़", "ஆவணங்கள்", "కాగితాలు"])
+        is_asking_docs = any(w in q_low for w in ["document", "documents", "paper", "papers", "proof", "दस्तावेज़", "ஆவணங்கள்", "காగితాలు"])
         is_asking_subsidy = any(w in q_low for w in ["subsidy", "benefit", "amount", "money", "how much", "rate", "subvention", "अनुदान", "लाभ", "रुपये", "மானியம்", "தொகை", "సబ్సిడీ"])
         is_asking_eligibility = any(w in q_low for w in ["eligible", "eligibility", "who can", "criteria", "पात्रता", "தகுதி", "అర్హత"])
         is_asking_apply = any(w in q_low for w in ["how to apply", "apply", "registration", "register", "आवेदन", "விண்ணப்பிக்க", "దరఖాస్తు"])
+        is_asking_seed = any(w in q_low for w in ["seed", "seeds", "sow", "sowing", "tomato", "vegetable", "seedling", "seedlings", "collect", "where to get", "where could i", "விதை", "விதைகள்", "நாற்று", "தக்காளி", "காய்கறி", "बीज", "टमाटर"])
 
         if language == "hi":
             sections = [f"### 📜 {name}\n"]
-            if is_asking_subsidy:
+            if is_asking_seed:
+                sections.append(
+                    "**🌱 प्रमाणित बीज एवं पौध वितरण केंद्र (Where to Collect):**\n"
+                    "- **ब्लॉक कृषि विस्तार केंद्र (AEC) / बागवानी डिपो:** प्रमाणित हाइब्रिड सब्जी/टमाटर के बीज 50% सरकारी अनुदान पर उपलब्ध।\n"
+                    "- **स्थानीय प्राथमिक कृषि साख समिति (PACS / PMKSK):** प्रमाणित बीज कोटा वितरण केंद्र।\n"
+                    "- **राजकीय बागवानी फार्म एवं नर्सरी:** प्रो-ट्रे पौध एवं उन्नत किस्में।\n"
+                )
+                sections.append(f"**💰 वित्तीय लाभ एवं अनुदान:**\n{benefit}\n")
+                sections.append(f"**📝 आवेदन एवं पंजीयन:** ऑनलाइन: [{portal}]({portal}) | ऑफ़लाइन: {offline_mode}\n")
+            elif is_asking_subsidy:
                 sections.append(f"**💰 वित्तीय लाभ एवं अनुदान सहायता:**\n{benefit}\n")
                 sections.append(f"**📌 योजना विवरण:**\n{summary}\n")
             elif is_asking_docs:
@@ -182,7 +192,16 @@ class FarmerSchemeEngine:
 
         elif language == "ta":
             sections = [f"### 📜 {name}\n"]
-            if is_asking_subsidy:
+            if is_asking_seed:
+                sections.append(
+                    "**🌱 சான்றளிக்கப்பட்ட விதை மற்றும் நாற்றுகள் பெறும் இடங்கள் (Where to Collect):**\n"
+                    "- **வட்டார வேளாண்மை விரிவாக்க மையம் (AEC) / தோட்டக்கலை உதவி இயக்குனர் அலுவலகம்:** தக்காளி மற்றும் காய்கறி விதைகள் 50% அரசு மானியத்தில் பெறலாம்.\n"
+                    "- **தொடக்க வேளாண்மை கூட்டுறவு கடன் சங்கம் (PACS / PMKSK):** தரமான சான்றளிக்கப்பட்ட விதை இருப்பு மையம்.\n"
+                    "- **அரசு தோட்டக்கலை பண்ணை (State Horticulture Farm):** குழித்தட்டு நாற்றுகள் (Pro-tray Seedlings).\n"
+                )
+                sections.append(f"**💰 நிதி உதவி மற்றும் மானிய விபரம்:**\n{benefit}\n")
+                sections.append(f"**📝 பதிவு முறை:** ஆன்லைன்: [{portal}]({portal}) | நேரடி: {offline_mode}\n")
+            elif is_asking_subsidy:
                 sections.append(f"**💰 நிதி உதவி மற்றும் மானிய விபரம்:**\n{benefit}\n")
                 sections.append(f"**📌 திட்ட விளக்கம்:**\n{summary}\n")
             elif is_asking_docs:

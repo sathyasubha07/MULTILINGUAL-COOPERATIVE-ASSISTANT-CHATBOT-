@@ -25,11 +25,16 @@ export async function sendTextQuery(text, language = 'en') {
  * Send a voice recording for transcription + response.
  * @returns {Promise<{ responseType: string, answer: string, transcription: string, officerRecommendation?: object }>}
  */
-export async function sendVoiceQuery(audioBlob, language = 'en') {
+export async function sendVoiceQuery(audioBlob, language = 'en', transcript = '') {
   try {
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.wav');
+    if (audioBlob) {
+      formData.append('audio', audioBlob, 'recording.wav');
+    }
     formData.append('language', language);
+    if (transcript) {
+      formData.append('transcript', transcript);
+    }
     const res = await fetch(`${API_BASE_URL}/chat/voice`, {
       method: 'POST',
       body: formData,

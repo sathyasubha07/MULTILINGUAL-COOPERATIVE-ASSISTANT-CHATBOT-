@@ -164,9 +164,9 @@ class IntentClassifier:
         if any(w in cleaned_query for w in ["pmfby", "fasal bima", "hailstorm", "flood", "72 hour", "72-hour", "72hr", "crop loss", "crop damage", "crops damaged", "crops destroyed", "crop destroyed", "crops got desteroyed", "desteroyed", "heavy rain", "rain", "rains", "rainfall", "excess rain", "waterlogging", "inundation", "cyclone", "पिक विमा", "பயிர் காப்பீடு", "बೆಳೆ ವಿಮೆ", "பயிர் சேதம்"]):
             raw_scores["pacs_pmfby"] += 6
 
-        # Grievance / dispute / whom to meet booster
-        if any(w in cleaned_query for w in ["reject", "refuse", "bribe", "not given", "delayed", "complaint", "harassment", "solve", "how to solve", "whom to meet", "who to meet", "whom i will meet", "where to go", "officer to meet", "शिकायत", "புகார்", "தீர்வு", "யாரை சந்திக்க", "तक्रार", "లంచం"]):
-            raw_scores["grievance"] += 4
+        # Grievance / dispute booster (only for actual complaints/violations)
+        if any(w in cleaned_query for w in ["reject", "refuse", "bribe", "corruption", "not given", "delayed loan", "overcharg", "bundling", "cheated", "fraud", "complaint", "harassment", "शिकायत", "புகார்", "லஞ்சம்", "மோசம்", "तक्रार"]):
+            raw_scores["grievance"] += 5
 
         # Financial literacy booster
         if any(w in cleaned_query for w in ["4%", "4 percent", "interest rate", "scale of finance", "kcc limit", "ब्याज दर", "वட்டி"]):

@@ -37,6 +37,7 @@ class ChatResponse(BaseModel):
     extracted_slots: Optional[Dict[str, Any]] = None
     transcription: Optional[str] = None
     officer_recommendation: Optional[Dict[str, Any]] = None
+    recommended_officer: Optional[Dict[str, Any]] = None
     procedure: Optional[Dict[str, Any]] = None
     authorities: Optional[List[Dict[str, Any]]] = None
 

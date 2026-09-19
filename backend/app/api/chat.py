@@ -51,29 +51,31 @@ async def handle_tts(payload: TTSRequest):
 
 @router.post("/voice", response_model=ChatResponse)
 async def handle_voice_query(
-    audio: UploadFile = File(...),
-    language: Optional[str] = Form("en")
+    audio: Optional[UploadFile] = File(None),
+    language: Optional[str] = Form("en"),
+    transcript: Optional[str] = Form(None)
 ):
     try:
-        suffix = os.path.splitext(audio.filename or "")[1] or ".wav"
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-            tmp_path = tmp.name
-            content = await audio.read()
-            tmp.write(content)
-        
-        transcription = ""
+        transcription = (transcript or "").strip()
         detected_lang = language or "en"
-        try:
-            audio_input = AudioInput.from_file(tmp_path)
-            stt_res = speech_to_text(audio_input, language=language)
-            if stt_res.ok and stt_res.text:
-                transcription = stt_res.text
-                detected_lang = stt_res.detected_language or detected_lang
-        except Exception:
-            pass
-        finally:
-            if os.path.exists(tmp_path):
-                os.remove(tmp_path)
+        
+        if not transcription and audio:
+            suffix = os.path.splitext(audio.filename or "")[1] or ".wav"
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                tmp_path = tmp.name
+                content = await audio.read()
+                tmp.write(content)
+            try:
+                audio_input = AudioInput.from_file(tmp_path)
+                stt_res = speech_to_text(audio_input, language=language)
+                if stt_res.ok and stt_res.text:
+                    transcription = stt_res.text
+                    detected_lang = stt_res.detected_language or detected_lang
+            except Exception:
+                pass
+            finally:
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
         
         if not transcription or not transcription.strip():
             msg_map = {
