@@ -212,7 +212,6 @@ button {
   0%, 80%, 100% { transform: scale(0); }
   40% { transform: scale(1); }
 }
-<<<<<<< HEAD
 
 @keyframes pulse {
   0%, 100% { transform: scale(1); opacity: 1; }
@@ -360,5 +359,3 @@ button {
 }
 
 
-=======
->>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5

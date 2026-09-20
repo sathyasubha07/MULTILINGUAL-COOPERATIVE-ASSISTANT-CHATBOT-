@@ -111,7 +111,7 @@ class PacsPmfbyEngine:
         primary = matched[0]
 
         guidance_text = self._format_response(primary, language)
-        if language != "en":
+        if language not in ("en", "ta", "hi"):
             guidance_text = self.translator.translate(guidance_text, "en", language)
 
         return {

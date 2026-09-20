@@ -12,13 +12,9 @@
     "jspdf": "^2.5.1",
     "lucide-react": "^0.344.0",
     "react": "^18.2.0",
-<<<<<<< HEAD
     "react-dom": "^18.2.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1"
-=======
-    "react-dom": "^18.2.0"
->>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",

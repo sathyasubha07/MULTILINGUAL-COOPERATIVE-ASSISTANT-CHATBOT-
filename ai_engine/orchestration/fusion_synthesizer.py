@@ -94,8 +94,8 @@ class FusionSynthesizer:
 
         fused_answer = "\n".join(fused_sections).strip()
 
-        # Apply phrase translation if language != 'en'
-        if language != "en":
+        # Apply phrase translation if language is not English, Tamil, or Hindi (which already have native sub-model templates)
+        if language not in ("en", "ta", "hi"):
             fused_answer = self.translator.translate(fused_answer, "en", language)
 
         # 3. Recommend Verified District Officer (Strict Zero-Hallucination)

@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from backend.app.schemas.chat import ChatRequest, ChatResponse
 from backend.app.services.chat_service import chat_service
 from ai_engine.language.speech_to_text import speech_to_text
-from ai_engine.language.text_to_speech import text_to_speech
+from ai_engine.language.text_to_speech import text_to_speech, clean_speech_text
 from ai_engine.language.interfaces import AudioInput
 
 router = APIRouter()
@@ -32,17 +32,27 @@ async def handle_chat_query(payload: ChatRequest):
 @router.post("/tts")
 async def handle_tts(payload: TTSRequest):
     try:
-        # Clean text of markdown characters for cleaner speech synthesis
-        clean_text = (
-            payload.text.replace("#", "")
-            .replace("*", "")
-            .replace("`", "")
-            .replace("📌", "")
-            .replace("⚠️", "")
-            .replace("🏛️", "")
-            .strip()
-        )
-        tts_res = text_to_speech(clean_text, payload.language or "en", play_audio=False)
+        clean_text = clean_speech_text(payload.text, max_chars=350)
+        target_lang = payload.language or "en"
+        # Auto-detect Indic script to guarantee pure native Indic pronunciation
+        if any('\u0B80' <= c <= '\u0BFF' for c in clean_text):
+            target_lang = "ta"
+        elif any('\u0900' <= c <= '\u097F' for c in clean_text):
+            target_lang = "hi"
+        elif any('\u0C00' <= c <= '\u0C7F' for c in clean_text):
+            target_lang = "te"
+        elif any('\u0C80' <= c <= '\u0CFF' for c in clean_text):
+            target_lang = "kn"
+        elif any('\u0D00' <= c <= '\u0D7F' for c in clean_text):
+            target_lang = "ml"
+        elif any('\u0980' <= c <= '\u09FF' for c in clean_text):
+            target_lang = "bn"
+        elif any('\u0A80' <= c <= '\u0AFF' for c in clean_text):
+            target_lang = "gu"
+        elif any('\u0A00' <= c <= '\u0A7F' for c in clean_text):
+            target_lang = "pa"
+
+        tts_res = text_to_speech(clean_text, target_lang, play_audio=False)
         if not tts_res.ok or not tts_res.audio_bytes:
             raise HTTPException(status_code=500, detail=tts_res.error or "TTS synthesis failed")
         return Response(content=tts_res.audio_bytes, media_type="audio/mpeg")

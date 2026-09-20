@@ -96,7 +96,7 @@ SUPPORTED_LANGUAGES: Dict[str, Dict[str, Any]] = {
         "whisper_code": "en",           # Whisper language code
         "bhashini_code": "en",          # Bhashini / ULCA code
         "piper_voice": PIPER_VOICES.get("en"),
-        "gtts_tld": "co.in",           # gTTS top-level domain for accent
+        "gtts_tld": "com",           # gTTS top-level domain for accent
     },
     "hi": {
         "name": "Hindi",
@@ -104,7 +104,7 @@ SUPPORTED_LANGUAGES: Dict[str, Dict[str, Any]] = {
         "whisper_code": "hi",
         "bhashini_code": "hi",
         "piper_voice": PIPER_VOICES.get("hi"),
-        "gtts_tld": "co.in",
+        "gtts_tld": "com",
     },
     "ta": {
         "name": "Tamil",
@@ -112,18 +112,64 @@ SUPPORTED_LANGUAGES: Dict[str, Dict[str, Any]] = {
         "whisper_code": "ta",
         "bhashini_code": "ta",
         "piper_voice": PIPER_VOICES.get("ta"),
-        "gtts_tld": "co.in",
+        "gtts_tld": "com",
     },
-    # ----------------------------------------------------------------
-    # Adding more languages?  Just copy an entry above and fill in:
-    #   - whisper_code:  Whisper ISO-639-1 code
-    #   - bhashini_code: Bhashini / ULCA pipeline code
-    #   - piper_voice:   add to PIPER_VOICES dict, or None for gTTS-only
-    #   - gtts_tld:      Google TTS domain (e.g. "co.in" for Indian accent)
-    # ----------------------------------------------------------------
-    # "te": { ... },
-    # "mr": { ... },
-    # "bn": { ... },
+    "te": {
+        "name": "Telugu",
+        "native_name": "తెలుగు",
+        "whisper_code": "te",
+        "bhashini_code": "te",
+        "piper_voice": None,
+        "gtts_tld": "com",
+    },
+    "kn": {
+        "name": "Kannada",
+        "native_name": "ಕನ್ನಡ",
+        "whisper_code": "kn",
+        "bhashini_code": "kn",
+        "piper_voice": None,
+        "gtts_tld": "com",
+    },
+    "ml": {
+        "name": "Malayalam",
+        "native_name": "മലയാളം",
+        "whisper_code": "ml",
+        "bhashini_code": "ml",
+        "piper_voice": None,
+        "gtts_tld": "com",
+    },
+    "mr": {
+        "name": "Marathi",
+        "native_name": "मराठी",
+        "whisper_code": "mr",
+        "bhashini_code": "mr",
+        "piper_voice": None,
+        "gtts_tld": "com",
+    },
+    "bn": {
+        "name": "Bengali",
+        "native_name": "বাংলা",
+        "whisper_code": "bn",
+        "bhashini_code": "bn",
+        "piper_voice": None,
+        "gtts_tld": "com",
+    },
+    "gu": {
+        "name": "Gujarati",
+        "native_name": "ગુજરાતી",
+        "whisper_code": "gu",
+        "bhashini_code": "gu",
+        "piper_voice": None,
+        "gtts_tld": "com",
+    },
+    "pa": {
+        "name": "Punjabi",
+        "native_name": "ਪੰਜਾਬੀ",
+        "whisper_code": "pa",
+        "bhashini_code": "pa",
+        "piper_voice": None,
+        "gtts_tld": "com",
+    },
 }
 
 

@@ -127,7 +127,7 @@ class FarmerSchemeEngine:
         primary = matched[0]
 
         guidance_text = self._format_scheme_response(primary, query, language)
-        if language != "en":
+        if language not in ("en", "ta", "hi"):
             guidance_text = self.translator.translate(guidance_text, "en", language)
 
         return {

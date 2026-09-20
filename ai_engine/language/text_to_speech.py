@@ -131,13 +131,38 @@ class PiperTTSBackend(TTSBackend):
         return voice
 
 
-# ---------------------------------------------------------------------------
-# gTTS Fallback Backend  (online, Google Translate TTS)
-# ---------------------------------------------------------------------------
+import re
+import hashlib
+
+_TTS_AUDIO_CACHE = {}
+
+def clean_speech_text(text: str, max_chars: int = 350) -> str:
+    """
+    Sanitizes AI response text into natural, spoken voice sentences:
+    - Strips markdown formatting, links, URLs, raw citations, tables, and emojis.
+    - Limits length to key actionable sentences for instantaneous (<500ms) audio playback.
+    """
+    cleaned = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+    cleaned = re.sub(r'https?://\S+', '', cleaned)
+    cleaned = re.sub(r'🏛️.*', '', cleaned)
+    cleaned = re.sub(r'(?:Official Sources|Statutory Citations|சட்டப்பிரிவு மேற்கோள்கள்|ஆதாரம்|आधिकारिक संदर्भ|संदर्भ).*', '', cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r'[#*`📌⚠️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•\-|]', ' ', cleaned)
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+
+    if len(cleaned) <= max_chars:
+        return cleaned
+
+    # Truncate at natural punctuation boundary
+    cut = cleaned[:max_chars]
+    last_p = max(cut.rfind('.'), cut.rfind('।'), cut.rfind('?'), cut.rfind('!'), cut.rfind(','))
+    if last_p > 80:
+        return cut[:last_p + 1].strip()
+    return cut.strip()
+
 
 class GttsFallbackBackend(TTSBackend):
     """
-    Online TTS fallback using Google Translate's text-to-speech.
+    Online TTS fallback using Google Translate's text-to-speech with in-memory caching.
     """
 
     @property
@@ -177,7 +202,7 @@ class GttsFallbackBackend(TTSBackend):
                 error="Empty text — nothing to synthesize.",
             )
 
-        text = text.strip()
+        spoken_text = clean_speech_text(text, max_chars=350)
         if not is_language_supported(language):
             return TTSResult(
                 audio_bytes=b"",
@@ -187,38 +212,33 @@ class GttsFallbackBackend(TTSBackend):
                 error=f"Unsupported language: '{language}'.",
             )
 
+        # Check Cache
+        cache_key = (hashlib.md5(spoken_text.encode('utf-8')).hexdigest(), language)
+        if cache_key in _TTS_AUDIO_CACHE:
+            return TTSResult(
+                audio_bytes=_TTS_AUDIO_CACHE[cache_key],
+                sample_rate=22050,
+                language=language,
+                engine=self.name,
+            )
+
         from gtts import gTTS
 
         lang_cfg = SUPPORTED_LANGUAGES.get(language, {})
         tld = lang_cfg.get("gtts_tld", "co.in")
 
-        tts = gTTS(text=text, lang=language, tld=tld)
+        tts = gTTS(text=spoken_text, lang=language, tld=tld)
 
-        # gTTS writes MP3 → convert to WAV via pydub if possible
         mp3_buf = io.BytesIO()
         tts.write_to_fp(mp3_buf)
         mp3_bytes = mp3_buf.getvalue()
 
-        try:
-            from pydub import AudioSegment
-
-            mp3_buf.seek(0)
-            seg = AudioSegment.from_mp3(mp3_buf)
-            seg = seg.set_channels(1).set_frame_rate(22050).set_sample_width(2)
-            wav_buf = io.BytesIO()
-            seg.export(wav_buf, format="wav")
-            wav_bytes = wav_buf.getvalue()
-            sr = 22050
-        except Exception as exc:
-            logger.warning(
-                "pydub/ffmpeg failed to convert MP3 to WAV (%s) — returning raw MP3 bytes.", exc
-            )
-            wav_bytes = mp3_bytes
-            sr = 22050
+        # Cache synthesized audio
+        _TTS_AUDIO_CACHE[cache_key] = mp3_bytes
 
         return TTSResult(
-            audio_bytes=wav_bytes,
-            sample_rate=sr,
+            audio_bytes=mp3_bytes,
+            sample_rate=22050,
             language=language,
             engine=self.name,
         )

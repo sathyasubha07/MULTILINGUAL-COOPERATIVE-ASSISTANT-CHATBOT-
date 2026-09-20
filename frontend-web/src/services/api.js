@@ -9,13 +9,8 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
-<<<<<<< HEAD
 // Connect to real backend API by default, fallback to mock if offline
 const USE_MOCK = false;
-=======
-// Toggle to switch between mock responses and real backend HTTP API calls
-const USE_MOCK = true;
->>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
 
 /**
  * Send a text query to the assistant.
@@ -55,13 +50,9 @@ export async function sendVoiceQuery(audioBlob, language = 'en') {
   if (!USE_MOCK) {
     try {
       const formData = new FormData();
-<<<<<<< HEAD
       if (audioBlob) {
         formData.append('audio', audioBlob, 'recording.webm');
       }
-=======
-      formData.append('audio', audioBlob);
->>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
       formData.append('language', language);
       const res = await fetch(`${API_BASE_URL}/chat/voice`, {
         method: 'POST',
@@ -80,9 +71,31 @@ export async function sendVoiceQuery(audioBlob, language = 'en') {
   return mockVoiceResponse(language);
 }
 
+/**
+ * Fetch Text-to-Speech audio from the backend TTS engine (Pure Native Indic voice).
+ * @param {string} text - The text to synthesize
+ * @param {string} language - The language code (e.g. 'ta', 'hi', 'en', 'te')
+ * @returns {Promise<string|null>} Object URL pointing to the audio stream, or null
+ */
+export async function fetchTTSAudio(text, language = 'en') {
+  try {
+    const res = await fetch(`${API_BASE_URL}/chat/tts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, language }),
+    });
+    if (res.ok) {
+      const blob = await res.blob();
+      return URL.createObjectURL(blob);
+    }
+  } catch (err) {
+    console.warn('Backend TTS request failed:', err);
+  }
+  return null;
+}
+
 function normalizeBackendResponse(data) {
   return {
-<<<<<<< HEAD
     responseType: data.response_type || data.responseType || data.domain || 'general',
     answer: data.answer || data.response || data.message || '',
     transcription: data.transcription || null,
@@ -90,12 +103,6 @@ function normalizeBackendResponse(data) {
     citations: data.citations || [],
     verifiedFacts: data.verified_facts || [],
     trustScore: data.trust_score || 0.98,
-=======
-    responseType: data.response_type || data.responseType || 'general',
-    answer: data.answer || data.message || '',
-    transcription: data.transcription || null,
-    officerRecommendation: data.officer_recommendation || data.officerRecommendation || null,
->>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
   };
 }
 
