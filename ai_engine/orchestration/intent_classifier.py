@@ -57,7 +57,6 @@ class IntentClassifier:
                 "ಪ್ರಾಥಮಿಕ ಕೃಷಿ ಪತ್ತಿನ ಸಹಕಾರ ಸಂಘ", "ಗೊಬ್ಬರ", "ಬೀಜ", "ಕಾರ್ಯದರ್ಶಿ"
             ],
             "farmer_scheme": [
-                # Central & State Agricultural & Rural Schemes
                 "pm-kisan", "pmkisan", "pm kisan", "kisan samman nidhi", "samman nidhi", "pmkisan.gov.in",
                 "installment", "four monthly installment", "6000", "₹6,000", "2000", "₹2,000", "17th installment",
                 "18th installment", "19th installment", "ekyc", "e-kyc", "land seeding", "npci seeding",
@@ -71,10 +70,8 @@ class IntentClassifier:
                 "fertilizer subsidy", "dbt fertilizer", "myscheme", "myscheme portal", "nabard subsidy",
                 "soil health card", "shc", "per drop more crop", "micro irrigation subsidy", "drip irrigation subsidy",
                 "sprinkler subsidy", "pmksy", "farmer scheme", "farmer subsidy", "subsidy", "grant", "yojana",
-                "krishi yojana", "sarkari yojana", "state subsidy", "water problem", "water scarcity", "water shortage",
-                "water not coming", "irrigation water", "borewell", "farm pond", "drip", "sprinkler",
+                "krishi yojana", "sarkari yojana", "state subsidy", "borewell", "farm pond", "drip", "sprinkler",
                 "electricity", "power cut", "power supply", "pump set", "solar motor", "electric motor", "agricultural power",
-                # Multilingual Schemes
                 "पीएम किसान", "किसान सम्मान निधि", "पीएम कुसुम", "सोलर पंप", "सब्सिडी", "अनुदान", "किस्त", "ई-केवाईसी",
                 "कृषि अवसंरचना कोष", "प्राकृतिक खेती", "कृषि यंत्र सब्सिडी", "ड्रिप सिंचाई", "मृदा स्वास्थ्य कार्ड", "पानी की समस्या", "सिंचाई पानी", "बिजली की समस्या",
                 "திட்டம்", "விவசாய மானியம்", "சோலார் பம்ப்", "பிஎம் கிசான்", "தவணை", "இயற்கை விவசாயம்", "தண்ணீர் பிரச்சனை", "பாசன நீர்", "சொட்டு நீர் பாசனம்", "மின்வெட்டு", "மின்சாரம்",
@@ -100,12 +97,18 @@ class IntentClassifier:
                 "ombudsman", "cooperative ombudsman", "banking ombudsman", "officer recommendation",
                 "escalate", "escalation", "unjust", "arbitrary", "show cause notice", "dgrc", "sgrc",
                 "district grievance redressal committee", "state grievance committee", "dispute", "investigation",
+                # Aadhaar Card Updates, Corrections & Citizen Service Grievances
+                "aadhar", "aadhaar", "aadhar card", "aadhaar card", "change my name", "change name", "change address",
+                "update address", "update my address", "update name", "where i can go", "whom i need to meet", "where can i go",
+                "whom do i meet", "who to meet", "aadhar update", "aadhaar update", "correction in aadhar", "aadhar correction",
+                "aadhaar correction", "ask center", "aadhaar seva kendra",
                 # Multilingual Grievance
                 "शिकायत", "अपील", "रद्द", "अस्वीकार", "मना कर दिया", "मना किया", "नहीं ले रहा", "नहीं दिया", "नहीं दे रहा", "देरी", "रिश्वत", "घूस", "भ्रष्टाचार", "गबन", "जबरन", "अधिक पैसे", "कमीशन", "शिकायत कहाँ करें", "पानी की समस्या", "नहर का पानी",
-                "सहायक निबंधक", "अधिकारी", "निवारण", "धारा 19", "लोकपाल", "न्यायाधिकरण",
+                "सहायक निबंधक", "अधिकारी", "निवारण", "धारा 19", "लोकपाल", "न्यायाधिकरण", "आधार कार्ड", "नाम बदलना", "पता बदलना", "आधार सुधार", "आधार केंद्र",
                 "புகார்", "மேல்முறையீடு", "நிராகரிப்பு", "தாமதம்", "இழுத்தடிக்கிறார்கள்", "முறையிடுவது", "லஞ்சம்", "அதிகாரி", "பிரிவு 19", "முறையீடு", "கூடுதல் விலை", "தண்ணீர் பிரச்சனை", "குடிநீர் பிரச்சனை", "வாய்க்கால் தண்ணீர்",
-                "ఫిర్యాదు", "అప్పీల్", "తిరస్కరణ", "ఆలస్యం", "అవినీతి", "లంచం", "అధికారి", "సెక్షన్ 19", "ఎక్కడ ఫిర్యాదు చేయాలి", "నీటి సమస్య",
-                "तक्रार", "अपील", "नाकारले", "विलंब", "लाच", "सहकार निबंधक", "भ्रष्टाचार", "चौकशी", "तक्रार कुठे करावी", "काळाबाजार", "पाण्याची समस्या"
+                "ஆதார் கார்டு", "ஆதார் பெயர் மாற்றம்", "முகவரி மாற்றம்", "ஆதார் திருத்தம்", "ஆதார் அட்டை", "எங்கு செல்ல வேண்டும்", "யாரை சந்திக்க வேண்டும்",
+                "ఫిర్యాదు", "అప్పీల్", "తిరస్కరణ", "ఆలస్యం", "అవినీతి", "లంచం", "అధికారి", "సెక్షన్ 19", "ఎక్కడ ఫిర్యాదు చేయాలి", "నీటి సమస్య", "ఆధార్ కార్డు", "పేరు మార్పు", "చిరునామా మార్పు",
+                "तक्रार", "अपील", "नाकारले", "विलंब", "लाच", "सहकार निबंधक", "भ्रष्टाचार", "चौकशी", "तक्रार कुठे करावी", "काळाबाजार", "पाण्याची समस्या", "आधार कार्ड", "नाव बदलणे", "पत्ता बदलणे"
             ],
             "cooperative_law": [
                 # Legal Legislation & Governance

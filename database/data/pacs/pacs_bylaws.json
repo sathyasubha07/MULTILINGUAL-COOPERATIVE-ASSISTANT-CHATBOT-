@@ -225,5 +225,36 @@
     ],
     "is_verified": true,
     "trust_score": 0.99
+  },
+  {
+    "id": "PACS-11",
+    "topic_code": "AADHAAR_UPDATE_NAME_ADDRESS_CSC",
+    "title": "Aadhaar Card Name & Address Update Procedure at Aadhaar Seva Kendra / PACS CSC",
+    "domain": "pacs_pmfby",
+    "category": "Digital Citizen Services",
+    "ministry": "UIDAI & Ministry of Cooperation",
+    "official_source": "https://uidai.gov.in",
+    "summary": "Step-by-step procedure to update Name and Address in Aadhaar card through authorized Aadhaar Seva Kendras (ASK), designated post offices, banks, and PACS Common Service Centres (CSC).",
+    "authorized_centers": [
+      "Aadhaar Seva Kendras (ASK): Dedicated official centers run directly by UIDAI.",
+      "PACS Common Service Centres (CSC / E-Seva): Village-level citizen service centers operated by PACS under Ministry of Cooperation initiatives.",
+      "Designated Post Offices & Nationalized Bank Branches: Permanent Aadhaar update counters."
+    ],
+    "officials_to_meet": [
+      "The Verifier: Government-appointed officer at entry/token desk who validates original documents against requested changes.",
+      "The Aadhaar Operator: Technical official who enters details in UIDAI software, scans originals, captures biometric authentication, and issues the URN acknowledgment slip."
+    ],
+    "required_documents": [
+      "For Name Change (Proof of Identity - PoI): Passport, PAN Card, Voter ID, Driving License, or Gazette Notification (Originals required).",
+      "For Address Change (Proof of Address - PoA): Bank Passbook/Statement with photo, Electricity Bill (within 3 months), Voter ID, Ration Card, or Registered Rent Agreement."
+    ],
+    "update_fee": "₹50 to ₹75 for demographic update.",
+    "citations": [
+      "UIDAI Aadhaar Enrolment and Update Guidelines 2024",
+      "Ministry of Cooperation PACS-CSC Framework 2023",
+      "MeitY Aadhaar Regulation Standards"
+    ],
+    "is_verified": true,
+    "trust_score": 0.99
   }
 ]

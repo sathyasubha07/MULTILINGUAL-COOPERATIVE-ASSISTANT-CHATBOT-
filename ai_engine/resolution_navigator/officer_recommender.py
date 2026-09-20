@@ -37,13 +37,46 @@ class OfficerRecommender:
         detected_district = None
         detected_locality = None
 
-        # District triggers
+        # District triggers covering all 38 Tamil Nadu districts (Priority: Theni, Madurai, Pudukkottai on top)
         district_keywords = {
             "Theni": ["theni", "தேனி", "தேனி மாவட்டம்", "andipatti", "cumbum", "periyakulam", "uthamapalayam", "chinnamanur", "bodinayakanur", "kadamalaigundu", "bodi", "gudalur"],
             "Madurai": ["madurai", "மதுரை", "மதுரை மாவட்டம்", "melur", "vadipatti", "usilampatti", "thirumangalam", "alanganallur", "kottampatti", "chellampatti", "thirupparankundram", "peraiyur", "kalligudi", "sedapatti"],
             "Pudukkottai": ["pudukkottai", "புதுக்கோட்டை", "புதுக்கோட்டை மாவட்டம்", "aranthangi", "illuppur", "karambakudi", "thirumayam", "avudaiyarkoil", "kunnandarkoil", "viralimalai", "ponnamaravathi", "gandarvakottai", "manamelkudi", "annavasal", "arimalam", "thiruvarankulam"],
+            "Coimbatore": ["coimbatore", "கோவை", "கோயம்புத்தூர்", "pollachi", "mettupalayam", "sulur", "annur", "valparai"],
+            "Thanjavur": ["thanjavur", "தஞ்சாவூர்", "தஞ்சை", "kumbakonam", "papanasam", "pattukkottai", "orathanadu", "thiruvaiyaru"],
+            "Dindigul": ["dindigul", "திண்டுக்கல்", "palani", "kodaikanal", "nilakottai", "natham", "oddanchatram", "vedasandur"],
+            "Tiruchirappalli": ["tiruchirappalli", "trichy", "திருச்சிராப்பள்ளி", "திருச்சி", "manapparai", "thuraiyur", "musiri", "lalgudi", "srirangam"],
+            "Salem": ["salem", "சேலம்", "attur", "mettur", "om権alur", "edappadi", "sankari", "valapady"],
+            "Tirunelveli": ["tirunelveli", "திருநெல்வேலி", "nellai", "palayamkottai", "ambasamudram", "nanguneri", "radhapuram"],
             "Erode": ["erode", "ஈரோடு", "ஈரோடு மாவட்டம்", "perundurai", "bhavani", "gobichettipalayam", "gobi", "sathyamangalam", "sathy", "chennimalai", "anthiyur", "kodumudi", "nambiyur", "ammapettai"],
-            "Karur": ["karur", "கரூர்", "கரூர் மாவட்டம்", "kadavur", "kulithalai", "krishnarayapuram", "thanthoni", "thogaimalai"]
+            "Karur": ["karur", "கரூர்", "கரூர் மாவட்டம்", "kadavur", "kulithalai", "krishnarayapuram", "thanthoni", "thogaimalai"],
+            "Vellore": ["vellore", "வேலூர்", "katpadi", "gudiyatham", "anaicut", "pernamallur"],
+            "Kanchipuram": ["kanchipuram", "காஞ்சிபுரம்", "காஞ்சி", "walajabad", "sriperumbudur", "kundrathur", "uthiramerur"],
+            "Cuddalore": ["cuddalore", "கடலூர்", "chidambaram", "panruti", "vriddhachalam", "tittakudi", "bhuvanagiri", "kurinjipadi"],
+            "Villupuram": ["villupuram", "விழுப்புரம்", "tindivanam", "gingee", "vanur", "vikravandi", "marakkanam"],
+            "Tiruppur": ["tiruppur", "திருப்பூர்", "avinashi", "palladam", "dharapuram", "kangeyam", "udumalaipettai", "madathukulam"],
+            "Ramanathapuram": ["ramanathapuram", "ராமநாதபுரம்", "ramnad", "paramakudi", "rameswaram", "kilakarai", "mudukulathur", "tiruvadanai"],
+            "Sivaganga": ["sivaganga", "சிவகங்கை", "karaikudi", "manamadurai", "devakottai", "tiruppuvanam", "singampunari"],
+            "Virudhunagar": ["virudhunagar", "விருதுநகர்", "sivakasi", "srivilliputhur", "rajapalayam", "aruppukkottai", "sattur"],
+            "Nagapattinam": ["nagapattinam", "நாகப்பட்டினம்", "velankanni", "kilvelur", "vedaranyam", "thirukkuvalai"],
+            "Tiruvarur": ["tiruvarur", "திருவாரூர்", "mannargudi", "nannilam", "kudavasal", "valangaiman", "muthupet", "needamangalam"],
+            "Krishnagiri": ["krishnagiri", "கிருஷ்ணகிரி", "hosur", "denkanikottai", "pochampalli", "urikarai", "bargur"],
+            "Dharmapuri": ["dharmapuri", "தருமபுரி", "harur", "palacode", "pennagaram", "pappireddipatti", "nallampalli"],
+            "Namakkal": ["namakkal", "நாமக்கல்", "rasipuram", "tiruchengode", "paramathi velur", "kolli hills", "sendamangalam"],
+            "Nilgiris": ["nilgiris", "நீலகிரி", "ooty", "udhagamandalam", "coonoor", "gudalur", "kotagiri"],
+            "Thoothukudi": ["thoothukudi", "தூத்துக்குடி", "tuticorin", "kovilpatti", "tiruchendur", "srivaikuntam", "kayathar", "ottapidaram"],
+            "Kanyakumari": ["kanyakumari", "கன்னியாகுமரி", "nagercoil", "padmanabhapuram", "thuckalay", "colachel", "kuzhithurai"],
+            "Tiruvallur": ["tiruvallur", "திருவள்ளூர்", "avadi", "ponneri", "gummidipoondi", "tiruttani", "poonamallee", "uthukottai"],
+            "Tiruvannamalai": ["tiruvannamalai", "திருவண்ணாமலை", "arani", "polur", "chengappadi", "vandavasi", "cheyyar"],
+            "Ranipet": ["ranipet", "ராணிப்பேட்டை", "arcot", "walajah", "sholinghur", "nemili", "arakkonam"],
+            "Tenkasi": ["tenkasi", "தென்காசி", "sankarankovil", "kadayanallur", "ambur", "shencottai", "alankulam", "veerakeralampudur"],
+            "Chengalpattu": ["chengalpattu", "செங்கல்பட்டு", "tambaram", "pallavaram", "maduranthakam", "cheyyur", "thiruporur"],
+            "Kallakurichi": ["kallakurichi", "கள்ளக்குறிச்சி", "sankarapuram", "chinnasalem", "ulundurpet", "tirukovilur", "kalvarayan hills"],
+            "Mayiladuthurai": ["mayiladuthurai", "மயிலாடுதுறை", "sirkazhi", "tharangambadi", "kuthalam"],
+            "Ariyalur": ["ariyalur", "அரியலூர்", "sendurai", "udayarpalayam", "andimadam"],
+            "Perambalur": ["perambalur", "பெரம்பலூர்", "veppanthattai", "kunnam", "alathur"],
+            "Tirupathur": ["tirupathur", "திருப்பத்தூர்", "vaniyambadi", "ambur", "natrampalli"],
+            "Chennai": ["chennai", "சென்னை", "egmore", "guindy", "t nagar", "adyar", "mylapore", "anna nagar", "royapettah"]
         }
 
         for district, keywords in district_keywords.items():
@@ -143,20 +176,23 @@ class OfficerRecommender:
         # Granular department prioritization
         if any(w in q_lower for w in ["supply officer", "ration", "pds", "rice", "fair price", "ரேஷன்", "வழங்கல் அதிகாரி"]):
             target_departments = ["Civil Supplies", "Co-operative", "District Supply Office"]
+        elif any(w in q_lower for w in ["cooperative", "sub registrar", "subregistrar", "joint registrar", "pacs", "கூட்டுறவு", "பதிவாளர்", "உறுப்பினர்", "கடன் சங்கம்"]):
+            target_departments = ["Co-operative", "Co-operation, Food & Consumer Protection", "District Administration", "Agriculture"]
         elif any(w in q_lower for w in ["machinery", "tractor", "drone", "harvester", "agri engineering", "பொறியியல்"]):
             target_departments = ["Agricultural Engineering", "Agriculture", "DRDA"]
         elif any(w in q_lower for w in ["horticulture", "vegetable", "fruit", "polyhouse", "drip", "தோட்டக்கலை"]):
             target_departments = ["Horticulture", "Agriculture"]
-        elif any(w in q_lower for w in ["agriculture officer", "agri officer", "aao", "ada", "crop loss", "pmfby", "hailstorm", "flood", "rain", "heavy rain", "rains", "rainfall", "crop damage", "crops destroyed", "crops got desteroyed", "desteroyed", "destroy", "ruined crop", "calamity", "விவசாய அதிகாரி", "வேளாண்மை", "வேளாண் உதவி அலுவலர்", "வேளாண் உதவி இயக்குனர்", "மழை", "பயிர் சேதம்"]):
+        elif any(w in q_lower for w in ["agriculture officer", "agri officer", "aao", "ada", "crop loss", "pmfby", "hailstorm", "flood", "rain", "heavy rain", "rains", "rainfall", "crop damage", "crops destroyed", "crops got desteroyed", "desteroyed", "destroy", "ruined crop", "calamity", "விவசாய அதிகாரி", "வேளாண் உதவி அலுவலர்", "வேளாண் உதவி இயக்குனர்", "மழை", "பயிர் சேதம்"]):
             target_departments = ["Agriculture", "Collectorate", "Revenue Division", "Taluk Office", "Co-operative", "Horticulture", "District Administration", "District Officers"]
-        elif any(w in q_lower for w in ["cooperative", "sub registrar", "subregistrar", "joint registrar", "pacs", "கூட்டுறவு", "பதிவாளர்"]):
-            target_departments = ["Co-operative", "Co-operation, Food & Consumer Protection", "District Administration"]
         elif any(w in q_lower for w in ["tahsildar", "rdo", "patta", "title deed", "land record", "தாசில்தார்", "நில ஆவணம்"]):
             target_departments = ["Taluk Office", "Revenue", "Revenue Division", "Collectorate"]
         elif any(w in q_lower for w in ["fertilizer", "urea", "dap", "mrp", "black marketing", "overcharging", "உரம்", "யூரியா"]):
             target_departments = ["Co-operative", "Agriculture", "Civil Supplies", "Co-operation, Food & Consumer Protection"]
         elif "pacs_pmfby" in active_domains:
-            target_departments = ["Agriculture", "Collectorate", "Co-operative", "Horticulture", "Revenue Division", "Taluk Office", "District Administration", "District Officers"]
+            if any(w in q_lower for w in ["pacs", "membership", "உறுப்பினர்", "சங்கம்", "கூட்டுறவு"]):
+                target_departments = ["Co-operative", "District Administration", "Agriculture", "Collectorate"]
+            else:
+                target_departments = ["Agriculture", "Collectorate", "Co-operative", "Horticulture", "Revenue Division", "Taluk Office", "District Administration", "District Officers"]
         elif "grievance" in active_domains:
             target_departments = ["Co-operative", "Agriculture", "Civil Supplies", "Revenue", "Collectorate", "Taluk Office", "Revenue Division", "District Administration", "District Officers"]
         elif "farmer_scheme" in active_domains:
@@ -164,7 +200,7 @@ class OfficerRecommender:
         elif "cooperative_law" in active_domains:
             target_departments = ["Co-operative", "Co-operation, Food & Consumer Protection", "District Administration"]
         else:
-            target_departments = ["Agriculture", "Collectorate", "Co-operative", "Revenue", "Taluk Office", "Revenue Division", "District Administration", "District Officers"]
+            target_departments = ["Co-operative", "Agriculture", "Collectorate", "Revenue", "Taluk Office", "Revenue Division", "District Administration", "District Officers"]
 
         # Filter candidate officers from the verified database
         district_officers = [o for o in self.officers_db if o.get("district", "").lower() == district.lower()]
@@ -371,6 +407,14 @@ class OfficerRecommender:
                     "- **ரிசர்வ் வங்கி குறைதீர்ப்பாளர்:** RBI Banking Ombudsman Helpline: `14448`\n"
                     "*💡 உங்கள் மாவட்ட அதிகாரியின் தொடர்பு எண்ணை அறிய மாவட்டத்தின் பெயரை குறிப்பிடவும்.*"
                 )
+            elif language == "hi":
+                return (
+                    "### 👤 ऋण एवं बैंकिंग सेवाओं हेतु संपर्क अधिकारी\n"
+                    "- **प्राथमिक संपर्क:** स्थानीय शाखा प्रबंधक / पैक्स सचिव / जिला केंद्रीय सहकारी बैंक (DCCB) अधिकारी\n"
+                    "- **जिला नोडल अधिकारी:** अग्रणी जिला प्रबंधक (LDM), जिला कलेक्ट्रेट\n"
+                    "- **वैधानिक बैंकिंग लोकपाल:** आरबीआई लोकपाल हेल्पलाइन: `14448`\n"
+                    "*💡 अपने जिले के अधिकारी का फोन नंबर देखने के लिए प्रश्न में अपने जिले का नाम लिखें।*"
+                )
             else:
                 return (
                     "### 👤 Competent Officers to Meet for Credit & Banking Services\n"
@@ -387,6 +431,14 @@ class OfficerRecommender:
                     "- **மாவட்ட நிலை:** வேளாண்மை இணை இயக்குனர் (JDA) / மாவட்ட ஆட்சியர் அலுவலகம்\n"
                     "- **விண்ணப்ப உதவி:** உள்ளூர் இ-சேவை மையம் (CSC) அல்லது PACS கூட்டுறவு சங்கம்\n"
                     "*💡 உங்கள் மாவட்ட அதிகாரியின் தொலைபேசி எண்ணைக் காண உங்கள் மாவட்டத்தின் பெயரைக் குறிப்பிடவும்.*"
+                )
+            elif language == "hi":
+                return (
+                    "### 👤 किसान कल्याण योजनाओं हेतु संपर्क अधिकारी\n"
+                    "- **ब्लॉक/ग्राम स्तर:** सहायक कृषि अधिकारी (AAO) / सहायक कृषि निदेशक (ADA)\n"
+                    "- **जिला स्तर:** संयुक्त कृषि निदेशक (JDA) / जिला कलेक्ट्रेट कृषि विभाग\n"
+                    "- **आवेदन केंद्र:** स्थानीय प्राथमिक कृषि ऋण समिति (PACS) अथवा ई-सेवा / कॉमन सर्विस सेंटर (CSC)\n"
+                    "*💡 अपने जिले के अधिकारी का सीधा संपर्क देखने के लिए अपने जिले का नाम लिखें।*"
                 )
             else:
                 return (

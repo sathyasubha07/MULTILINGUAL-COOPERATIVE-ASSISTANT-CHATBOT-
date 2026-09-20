@@ -2,10 +2,13 @@ from typing import Dict, Any, List
 from ai_engine.verification.database_cross_verifier import DatabaseCrossVerifier
 from ai_engine.resolution_navigator.officer_recommender import OfficerRecommender
 
+from ai_engine.language.translation import TranslationEngine
+
 class FusionSynthesizer:
     def __init__(self):
         self.cross_verifier = DatabaseCrossVerifier()
         self.officer_recommender = OfficerRecommender()
+        self.translator = TranslationEngine()
 
     def synthesize(
         self,
@@ -26,13 +29,31 @@ class FusionSynthesizer:
         all_citations: List[str] = list(citations)
         trust_scores: List[float] = []
 
-        domain_titles = {
+        domain_titles_en = {
             "pacs_pmfby": "🌾 PACS Services & PMFBY Crop Insurance",
             "farmer_scheme": "📜 Farmer Welfare & Subsidy Schemes",
             "grievance": "⚖️ Grievance Redressal & Statutory Escalation",
             "cooperative_law": "🏛️ Cooperative Law & Governance (MSCS Act)",
             "financial_literacy": "💳 Credit Literacy & Kisan Credit Card (KCC)"
         }
+
+        domain_titles_ta = {
+            "pacs_pmfby": "🌾 PACS சேவைகள் & PMFBY பயிர் காப்பீடு",
+            "farmer_scheme": "📜 உழவர் நலன் & அரசு மானியத் திட்டங்கள்",
+            "grievance": "⚖️ குறைதீர்ப்பு & சட்டப்பூர்வ தீர்வு",
+            "cooperative_law": "🏛️ கூட்டுறவு சட்டம் & நிர்வாக வழிகாட்டுதல்",
+            "financial_literacy": "💳 கிசான் கிரெடிட் கார்டு (KCC) & கடன் வழிகாட்டல்"
+        }
+
+        domain_titles_hi = {
+            "pacs_pmfby": "🌾 पैक्स सेवाएं एवं पीएम फसल बीमा",
+            "farmer_scheme": "📜 किसान कल्याण एवं सरकारी योजनाएं",
+            "grievance": "⚖️ शिकायत निवारण एवं कानूनी समाधान",
+            "cooperative_law": "🏛️ सहकारी कानून एवं प्रशासन",
+            "financial_literacy": "💳 किसान क्रेडिट कार्ड (KCC) एवं वित्तीय साक्षरता"
+        }
+
+        domain_titles = domain_titles_ta if language == "ta" else (domain_titles_hi if language == "hi" else domain_titles_en)
 
         # 1. Cross-verify every sub-model with the updated database
         for dom in active_domains:
@@ -55,19 +76,27 @@ class FusionSynthesizer:
         # Header banner if multi-domain
         if len(active_domains) > 1:
             active_labels = " + ".join([domain_titles.get(d, d.title()) for d in active_domains])
-            fused_sections.append(f"### 🌐 Multi-Domain Verified Advisory: {active_labels}\n")
+            if language == "ta":
+                fused_sections.append(f"### 🌐 ஒருங்கிணைந்த சரிபார்க்கப்பட்ட வழிகாட்டல்: {active_labels}\n")
+            elif language == "hi":
+                fused_sections.append(f"### 🌐 एकीकृत सत्यापित परामर्श: {active_labels}\n")
+            else:
+                fused_sections.append(f"### 🌐 Multi-Domain Verified Advisory: {active_labels}\n")
 
         for dom in active_domains:
             title = domain_titles.get(dom, dom.replace("_", " ").title())
             ans = domain_answers.get(dom, "").strip()
             if ans:
-                fused_sections.append(f"#### {title}\n{ans}\n")
+                if len(active_domains) > 1:
+                    fused_sections.append(f"#### {title}\n{ans}\n")
+                else:
+                    fused_sections.append(ans)
 
         fused_answer = "\n".join(fused_sections).strip()
 
-        # If only single domain, return the direct clean answer
-        if len(active_domains) == 1 and active_domains[0] in domain_answers:
-            fused_answer = domain_answers[active_domains[0]]
+        # Apply phrase translation if language != 'en'
+        if language != "en":
+            fused_answer = self.translator.translate(fused_answer, "en", language)
 
         # 3. Recommend Verified District Officer (Strict Zero-Hallucination)
         officer_rec = self.officer_recommender.recommend_officer(

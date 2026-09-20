@@ -1,20 +1,43 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Volume2, Pause, Play, Loader2 } from 'lucide-react';
+import { Send, Bot, User, Volume2, Pause, Play, Loader2, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 import { sendTextQuery, sendVoiceQuery, fetchTTSAudio } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
 import VoiceInput from '../VoiceInput/VoiceInput';
 import OfficerRecommendationCard from '../OfficerRecommendationCard/OfficerRecommendationCard';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { formatStepsLineByLine } from '../../utils/formatSteps';
+
+const SLIDING_LANGUAGES = [
+  { code: 'en', name: 'English', native: 'English' },
+  { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
+  { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+  { code: 'te', name: 'Telugu', native: 'తెలుగు' },
+  { code: 'mr', name: 'Marathi', native: 'मराठी' },
+  { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ' },
+  { code: 'bn', name: 'Bengali', native: 'বাংলা' },
+  { code: 'gu', name: 'Gujarati', native: 'ગુજરાતી' },
+  { code: 'ml', name: 'Malayalam', native: 'മലയാളം' },
+  { code: 'pa', name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+  { code: 'or', name: 'Odia', native: 'ଓଡ଼ିଆ' },
+];
 
 export default function ChatBox() {
-  const { language, t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const [messages, setMessages] = useState([]);
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [audioState, setAudioState] = useState({ messageId: null, status: 'idle' });
   const currentAudioRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const sliderRef = useRef(null);
+
+  const scrollSlider = (direction) => {
+    if (sliderRef.current) {
+      const amount = direction === 'left' ? -180 : 180;
+      sliderRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -83,15 +106,52 @@ export default function ChatBox() {
     fallbackSpeechSynthesis(messageId, text, langCode);
   };
 
+  const getVoiceForLanguage = (code) => {
+    if (!window.speechSynthesis) return null;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return null;
+
+    const prefix = (code || 'en').toLowerCase().split('-')[0];
+
+    // 1. Direct language code match (e.g. 'ta-IN', 'ta_IN', 'ta')
+    let match = voices.find(
+      (v) => v.lang.toLowerCase().startsWith(prefix) || v.lang.toLowerCase().includes(prefix)
+    );
+
+    // 2. Keyword match by voice name
+    if (!match) {
+      const nameKeywords = {
+        ta: ['tamil', 'தமிழ்', 'valluvar', 'pallavi'],
+        hi: ['hindi', 'हिन्दी', 'swara', 'madhur', 'kalpana', 'hemant'],
+        te: ['telugu', 'తెలుగు', 'mohan', 'shruti'],
+        kn: ['kannada', 'ಕನ್ನಡ', 'gagan', 'sapna'],
+        ml: ['malayalam', 'മലയാളം', 'midhun', 'sobhana'],
+        mr: ['marathi', 'मराठी', 'aarohi', 'manohar'],
+        bn: ['bengali', 'বাংলা', 'bashkar', 'tanishaa'],
+        gu: ['gujarati', 'ગુજરાતી', 'niranjan', 'dhwani'],
+        pa: ['punjabi', 'ਪੰਜਾਬੀ', 'rajan'],
+        en: ['english', 'india', 'en-in', 'natural'],
+      };
+      const kws = nameKeywords[prefix] || [];
+      match = voices.find((v) => kws.some((kw) => v.name.toLowerCase().includes(kw)));
+    }
+
+    // 3. Fallback to any Indian accent voice if specific Indic voice not locally installed
+    if (!match && prefix !== 'en') {
+      match = voices.find((v) => v.lang.includes('IN') || v.name.toLowerCase().includes('india'));
+    }
+
+    return match || null;
+  };
+
   const fallbackSpeechSynthesis = (messageId, text, langCode) => {
     if (!('speechSynthesis' in window)) {
       setAudioState({ messageId: null, status: 'idle' });
       return;
     }
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[#*`📌⚠️🏛️]/g, '').trim();
+    const cleanText = text.replace(/[#*`📌⚠️🏛️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒]/g, '').trim();
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 1.0; // Normal speed
 
     const langLocales = {
       en: 'en-IN',
@@ -105,7 +165,20 @@ export default function ChatBox() {
       ml: 'ml-IN',
       pa: 'pa-IN',
     };
-    utterance.lang = langLocales[langCode || language] || 'en-IN';
+
+    const targetLang = langCode || language;
+    const targetLocale = langLocales[targetLang] || 'en-IN';
+    const chosenVoice = getVoiceForLanguage(targetLang);
+
+    if (chosenVoice) {
+      utterance.voice = chosenVoice;
+      utterance.lang = chosenVoice.lang;
+    } else {
+      utterance.lang = targetLocale;
+    }
+
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
 
     utterance.onstart = () => setAudioState({ messageId, status: 'playing' });
     utterance.onend = () => setAudioState({ messageId: null, status: 'idle' });
@@ -267,6 +340,91 @@ export default function ChatBox() {
         <h2>{t('chatTitle')}</h2>
       </div>
 
+      {/* Horizontal Sliding Language Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        background: '#f1f5f9',
+        padding: '6px 10px',
+        borderRadius: '10px',
+        margin: '0 16px 12px 16px',
+        border: '1px solid #e2e8f0',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          fontSize: '12px',
+          fontWeight: '700',
+          color: '#64748b',
+          paddingRight: '6px',
+          borderRight: '1px solid #cbd5e1',
+          whiteSpace: 'nowrap',
+        }}>
+          <Globe size={13} color="#2563eb" />
+          <span>Lang:</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => scrollSlider('left')}
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', color: '#64748b' }}
+        >
+          <ChevronLeft size={16} />
+        </button>
+
+        <div
+          ref={sliderRef}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            overflowX: 'auto',
+            scrollBehavior: 'smooth',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            flex: 1,
+            padding: '2px 0',
+          }}
+        >
+          {SLIDING_LANGUAGES.map((lang) => {
+            const isActive = lang.code === (language || 'en');
+            return (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => setLanguage(lang.code)}
+                style={{
+                  padding: '3px 10px',
+                  borderRadius: '999px',
+                  fontSize: '12px',
+                  fontWeight: isActive ? '700' : '500',
+                  border: isActive ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                  background: isActive ? '#2563eb' : '#ffffff',
+                  color: isActive ? '#ffffff' : '#1e293b',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  boxShadow: isActive ? '0 2px 6px rgba(37, 99, 235, 0.25)' : 'none',
+                  transition: 'all 0.15s ease',
+                  flexShrink: 0,
+                }}
+              >
+                {lang.native} ({lang.code.toUpperCase()})
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => scrollSlider('right')}
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', color: '#64748b' }}
+        >
+          <ChevronRight size={16} />
+        </button>
+      </div>
+
       <div className="chat-messages">
         {messages.length === 0 && (
           <p className="chat-empty-hint">{t('welcomeMessage')}</p>
@@ -311,7 +469,7 @@ export default function ChatBox() {
                     </div>
                   )}
 
-                  {isUser ? msg.text : <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>}
+                  {isUser ? msg.text : <ReactMarkdown remarkPlugins={[remarkGfm]}>{formatStepsLineByLine(msg.text)}</ReactMarkdown>}
 
                   {/* Verified Statutory Citations */}
                   {!isUser && msg.citations && msg.citations.length > 0 && (

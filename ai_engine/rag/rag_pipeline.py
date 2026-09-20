@@ -13,6 +13,7 @@ from ai_engine.submodels.financial_literacy_engine import FinancialLiteracyEngin
 from ai_engine.rag.prompt_builder import PromptBuilder
 from ai_engine.llm.reasoner import LLMReasoner
 from ai_engine.resolution_navigator.procedure_generator import ProcedureGenerator
+from ai_engine.language.language_detector import LanguageDetector
 
 class RAGPipeline:
     def __init__(self):
@@ -25,8 +26,15 @@ class RAGPipeline:
         self.financial_literacy_submodel = FinancialLiteracyEngine()
         self.fusion_synthesizer = FusionSynthesizer()
         self.procedure_gen = ProcedureGenerator()
+        self.lang_detector = LanguageDetector()
 
     def process_query(self, query: str, language: str = "en") -> Dict[str, Any]:
+        # Auto-detect language from query text if Indic script characters are present
+        if query and query.strip():
+            det = self.lang_detector.detect(query)
+            if det and det.get("language") and det.get("language") != "en":
+                language = det.get("language")
+
         # 1. Routing & Retrieval across all activated sub-domains
         routing_result = self.router.route_and_retrieve(query=query, language=language)
         primary_domain = routing_result["domain"]

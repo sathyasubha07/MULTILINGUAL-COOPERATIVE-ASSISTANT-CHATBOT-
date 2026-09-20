@@ -8,10 +8,12 @@ import json
 import re
 from typing import Dict, Any, List, Optional
 from config.settings import settings
+from ai_engine.language.translation import TranslationEngine
 
 class FarmerSchemeEngine:
     def __init__(self):
         self.schemes_catalog: List[Dict[str, Any]] = []
+        self.translator = TranslationEngine()
         self._load_schemes()
 
     def _load_schemes(self):
@@ -125,6 +127,8 @@ class FarmerSchemeEngine:
         primary = matched[0]
 
         guidance_text = self._format_scheme_response(primary, query, language)
+        if language != "en":
+            guidance_text = self.translator.translate(guidance_text, "en", language)
 
         return {
             "matched_schemes": [s.get("scheme_name") for s in matched],

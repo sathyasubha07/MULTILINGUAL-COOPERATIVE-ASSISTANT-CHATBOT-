@@ -492,5 +492,50 @@
     "penalty_on_violator": "Statutory inspection and punitive action against unauthorized water diversion/tapping under Irrigation Acts; prioritized sanction of micro-irrigation subsidies.",
     "is_verified": true,
     "trust_score": 0.99
+  },
+  {
+    "id": "GRV-12",
+    "grievance_code": "AADHAAR_UPDATE_NAME_ADDRESS_GRIEVANCE",
+    "category": "Aadhaar Card Name and Address Update & Citizen Service Grievance",
+    "domain": "grievance",
+    "severity": "Medium",
+    "problem_statement": "Citizen / Farmer needs to update or correct both Name and Address in Aadhaar Card, but is unclear where to go, whom to meet, what original documents are required, and how to resolve center delays or overcharging.",
+    "statutory_remedy": "To change both Name and Address in Aadhaar card, citizen must visit an authorized Aadhaar Enrolment Centre or Aadhaar Seva Kendra (ASK). While address-only updates can be completed online via myAadhaar portal, Name changes strictly require a physical visit because biometric verification (fingerprint or iris scan) is mandatory under UIDAI regulations. At the center, the citizen interacts with The Verifier (who validates original legal PoI/PoA documents) and The Aadhaar Operator (who enters data, captures biometrics, collects standard ₹50-₹75 fee, and issues the URN acknowledgment slip).",
+    "override_authority": "District e-Governance Manager (DeGM) / District Collectorate E-Sevai Nodal Officer / UIDAI Toll-Free 1947",
+    "legal_sections": [
+      "Aadhaar (Targeted Delivery of Financial and Other Subsidies, Benefits and Services) Act 2016",
+      "UIDAI Aadhaar Enrolment and Update Regulation 2024",
+      "Ministry of Cooperation PACS-CSC E-Seva Directive 2023"
+    ],
+    "sla_days": 15,
+    "escalation_ladder": [
+      {
+        "level": 1,
+        "authority": "Aadhaar Seva Kendra (ASK) / PACS CSC E-Sevai Operator",
+        "timeline": "Immediate (At Counter)",
+        "action": "Submit Aadhaar update form with original PoI and PoA documents, capture biometric authentication, and receive URN acknowledgment slip."
+      },
+      {
+        "level": 2,
+        "authority": "District e-Governance Manager (DeGM) / Lead District Post Office",
+        "timeline": "7-15 Days",
+        "action": "Track URN on myaadhaar.uidai.gov.in; if delayed or overcharged above ₹75, lodge complaint with District E-Governance Nodal Officer."
+      },
+      {
+        "level": 3,
+        "authority": "UIDAI Regional Office / National Helpline (Toll-Free: 1947 / help@uidai.gov.in)",
+        "timeline": "30 Days",
+        "action": "Escalate rejected or stalled updates with URN reference for biometric override or re-enrolment approval."
+      }
+    ],
+    "required_evidence": [
+      "For Name Change (Proof of Identity - PoI): Passport, PAN Card, Voter ID, Driving License, or Government Gazette Notification (Originals only; photocopies not accepted)",
+      "For Address Change (Proof of Address - PoA): Bank Passbook/Statement with photo, Electricity Bill (within 3 months), Voter ID, Ration Card, or Registered Rent Agreement",
+      "Existing Aadhaar Card or 12-digit Aadhaar Number",
+      "Update Request Number (URN) Acknowledgement Slip"
+    ],
+    "penalty_on_violator": "Immediate suspension of operator ID and financial penalty under UIDAI Penal Regulations for overcharging above prescribed ₹50-₹75 fee or unwarranted document rejection.",
+    "is_verified": true,
+    "trust_score": 0.99
   }
 ]
