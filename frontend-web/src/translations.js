@@ -13,9 +13,12 @@ export const LANGUAGES = [
   { code: 'mr', name: 'Marathi', native: 'मराठी', flag: '🇮🇳' },
   { code: 'gu', name: 'Gujarati', native: 'ગુજરાતી', flag: '🇮🇳' },
   { code: 'bn', name: 'Bengali', native: 'বাংলা', flag: '🇮🇳' },
+<<<<<<< HEAD
   { code: 'ml', name: 'Malayalam', native: 'മലയാളം', flag: '🇮🇳' },
   { code: 'pa', name: 'Punjabi', native: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
   { code: 'or', name: 'Odia', native: 'ଓଡ଼ିଆ', flag: '🇮🇳' },
+=======
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
 ];
 
 export const TRANSLATIONS = {

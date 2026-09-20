@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+<<<<<<< HEAD
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { TRANSLATIONS, LANGUAGES } from '../translations';
@@ -33,15 +34,28 @@ import {
  * 2. Markdown prose rendering with citations and officer cards
  * 3. Web Speech Recognition STT and browser TTS voice synthesis
  * 4. Hides topic shortcuts once user starts typing or has messages
+=======
+import { TRANSLATIONS } from '../translations';
+import { Send, Mic, MicOff, Download, User, Bot, PhoneCall, Building, AlertCircle } from 'lucide-react';
+
+/**
+ * Unified Chat Interface (Center of Page)
+ * Features text input, mock voice recording input, chat bubble history, typing indicators,
+ * officer escalation recommendation cards, and PDF transcript download.
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
  */
 export default function ChatInterface({
   messages,
   langCode,
+<<<<<<< HEAD
   onSelectLanguage,
+=======
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
   onSendMessage,
   onSendVoice,
   isLoading,
   onDownloadPdf,
+<<<<<<< HEAD
   inputText,
   setInputText,
 }) {
@@ -51,12 +65,22 @@ export default function ChatInterface({
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const langSliderRef = useRef(null);
+=======
+}) {
+  const t = TRANSLATIONS[langCode] || TRANSLATIONS.en;
+  const [inputText, setInputText] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const messagesEndRef = useRef(null);
+  const timerRef = useRef(null);
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
 
   // Auto-scroll to bottom of chat history on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
+<<<<<<< HEAD
   // Cleanup speech synthesis on unmount
   useEffect(() => {
     return () => {
@@ -65,6 +89,29 @@ export default function ChatInterface({
       }
     };
   }, []);
+=======
+  // Voice recording simulation timer
+  useEffect(() => {
+    if (isRecording) {
+      setRecordingSeconds(0);
+      timerRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => {
+          if (prev >= 4) {
+            // Auto stop after 5 seconds
+            handleStopRecording();
+            return 0;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isRecording]);
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
 
   const handleSubmit = (e) => {
     e?.preventDefault();
@@ -73,6 +120,7 @@ export default function ChatInterface({
     setInputText('');
   };
 
+<<<<<<< HEAD
   const scrollLangSlider = (direction) => {
     if (langSliderRef.current) {
       const amount = direction === 'left' ? -200 : 200;
@@ -235,11 +283,29 @@ export default function ChatInterface({
     }
   };
 
+=======
+  const handleToggleRecording = () => {
+    if (isRecording) {
+      handleStopRecording();
+    } else {
+      setIsRecording(true);
+    }
+  };
+
+  const handleStopRecording = () => {
+    setIsRecording(false);
+    if (timerRef.current) clearInterval(timerRef.current);
+    // Submit mock audio blob
+    onSendVoice(new Blob(['mock-audio'], { type: 'audio/webm' }));
+  };
+
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
   return (
     <div style={{
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
+<<<<<<< HEAD
       overflow: 'hidden',
       position: 'relative',
     }}>
@@ -344,6 +410,12 @@ export default function ChatInterface({
       </div>
 
       {/* Top Action Bar */}
+=======
+      minHeight: '520px',
+      position: 'relative',
+    }}>
+      {/* Top Action Bar (Download Conversation Button when exchanges exist) */}
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
       {messages.length > 0 && (
         <div style={{
           display: 'flex',
@@ -353,6 +425,7 @@ export default function ChatInterface({
           borderBottom: '1px solid var(--bg-card-border)',
           marginBottom: '1rem',
         }}>
+<<<<<<< HEAD
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{
               display: 'inline-flex',
@@ -374,6 +447,11 @@ export default function ChatInterface({
             </span>
           </div>
 
+=======
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            {messages.length} {messages.length === 1 ? 'message' : 'messages'}
+          </span>
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
           <button
             onClick={onDownloadPdf}
             className="btn-secondary"
@@ -383,6 +461,7 @@ export default function ChatInterface({
               borderColor: 'rgba(16, 185, 129, 0.4)',
               color: '#10b981',
               background: 'rgba(16, 185, 129, 0.08)',
+<<<<<<< HEAD
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
@@ -390,6 +469,12 @@ export default function ChatInterface({
           >
             <Download size={14} color="#10b981" />
             <span>{t.downloadPdf || 'Download PDF'}</span>
+=======
+            }}
+          >
+            <Download size={15} color="#10b981" />
+            <span>{t.downloadPdf}</span>
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
           </button>
         </div>
       )}
@@ -404,6 +489,7 @@ export default function ChatInterface({
         gap: '1.25rem',
         marginBottom: '1.25rem',
       }}>
+<<<<<<< HEAD
         {messages.length === 0 && (
           <div style={{
             display: 'flex',
@@ -448,6 +534,13 @@ export default function ChatInterface({
           return (
             <div
               key={msg.id || idx}
+=======
+        {messages.map((msg, idx) => {
+          const isUser = msg.sender === 'user';
+          return (
+            <div
+              key={idx}
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
               style={{
                 display: 'flex',
                 justifyContent: isUser ? 'flex-end' : 'flex-start',
@@ -474,6 +567,7 @@ export default function ChatInterface({
               )}
 
               {/* Chat Bubble Container */}
+<<<<<<< HEAD
               <div style={{ maxWidth: '85%', minWidth: '260px' }}>
                 {/* Voice transcription badge if user spoke */}
                 {isUser && msg.isVoice && (
@@ -489,6 +583,21 @@ export default function ChatInterface({
                   }}>
                     <Mic size={12} />
                     <span>Spoken Voice Query</span>
+=======
+              <div style={{ maxWidth: '80%' }}>
+                {/* Voice transcription badge if present */}
+                {msg.transcription && (
+                  <div style={{
+                    fontSize: '0.78rem',
+                    color: 'var(--text-muted)',
+                    marginBottom: '0.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                  }}>
+                    <Mic size={12} color="#3b82f6" />
+                    <span>Transcribed: "{msg.transcription}"</span>
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
                   </div>
                 )}
 
@@ -497,6 +606,7 @@ export default function ChatInterface({
                   background: isUser ? 'var(--chat-user-bg)' : 'var(--chat-assistant-bg)',
                   color: isUser ? 'var(--chat-user-text)' : 'var(--chat-assistant-text)',
                   border: isUser ? 'none' : '1px solid var(--chat-assistant-border)',
+<<<<<<< HEAD
                   padding: '1.1rem 1.3rem',
                   borderRadius: isUser ? '1.25rem 1.25rem 0.25rem 1.25rem' : '1.25rem 1.25rem 1.25rem 0.25rem',
                   boxShadow: 'var(--shadow-sm)',
@@ -650,11 +760,32 @@ export default function ChatInterface({
                     border: '1px solid rgba(239, 68, 68, 0.3)',
                     borderRadius: '1rem',
                     padding: '1.1rem',
+=======
+                  padding: '0.9rem 1.2rem',
+                  borderRadius: isUser ? '1.25rem 1.25rem 0.25rem 1.25rem' : '1.25rem 1.25rem 1.25rem 0.25rem',
+                  boxShadow: 'var(--shadow-sm)',
+                  fontSize: '0.98rem',
+                  lineHeight: '1.55',
+                  wordBreak: 'break-word',
+                }}>
+                  {msg.text}
+                </div>
+
+                {/* Officer Escalation Card if attached */}
+                {msg.officerRecommendation && (
+                  <div style={{
+                    marginTop: '0.85rem',
+                    background: 'rgba(239, 68, 68, 0.06)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: '1rem',
+                    padding: '1rem',
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
                     boxShadow: 'var(--shadow-sm)',
                   }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
+<<<<<<< HEAD
                       justifyContent: 'space-between',
                       color: '#b91c1c',
                       fontWeight: '700',
@@ -714,6 +845,33 @@ export default function ChatInterface({
                           </a>
                         </div>
                       )}
+=======
+                      gap: '0.5rem',
+                      color: '#ef4444',
+                      fontWeight: '600',
+                      fontSize: '0.88rem',
+                      marginBottom: '0.65rem',
+                    }}>
+                      <AlertCircle size={17} />
+                      <span>{t.recommendedOfficer}</span>
+                    </div>
+
+                    <div style={{ fontSize: '0.88rem', color: 'var(--text-primary)', spaceY: '0.3rem' }}>
+                      <div style={{ fontWeight: '700', fontSize: '0.98rem', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>
+                        {msg.officerRecommendation.name}
+                      </div>
+                      <div style={{ color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+                        {msg.officerRecommendation.designation}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: '0.25rem' }}>
+                        <Building size={14} />
+                        <span>{msg.officerRecommendation.office}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: '600', fontSize: '0.88rem' }}>
+                        <PhoneCall size={14} />
+                        <span>{msg.officerRecommendation.phone}</span>
+                      </div>
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
                     </div>
                   </div>
                 )}
@@ -750,8 +908,14 @@ export default function ChatInterface({
           );
         })}
 
+<<<<<<< HEAD
         {isLoading && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+=======
+        {/* Loading Indicator */}
+        {isLoading && (
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
             <div style={{
               width: '36px',
               height: '36px',
@@ -761,13 +925,17 @@ export default function ChatInterface({
               alignItems: 'center',
               justifyContent: 'center',
               color: '#fff',
+<<<<<<< HEAD
               flexShrink: 0,
+=======
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
             }}>
               <Bot size={20} />
             </div>
             <div style={{
               background: 'var(--chat-assistant-bg)',
               border: '1px solid var(--chat-assistant-border)',
+<<<<<<< HEAD
               padding: '0.75rem 1.1rem',
               borderRadius: '1.25rem 1.25rem 1.25rem 0.25rem',
               display: 'flex',
@@ -782,6 +950,17 @@ export default function ChatInterface({
               <span style={{ marginLeft: '0.3rem', fontStyle: 'italic' }}>
                 {t.assistantTyping || 'Generating verified legal response...'}
               </span>
+=======
+              padding: '0.85rem 1.25rem',
+              borderRadius: '1.25rem 1.25rem 1.25rem 0.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}>
+              <div className="typing-dot"></div>
+              <div className="typing-dot"></div>
+              <div className="typing-dot"></div>
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
             </div>
           </div>
         )}
@@ -789,6 +968,7 @@ export default function ChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
+<<<<<<< HEAD
       {/* Chat Input Bar */}
       <form
         onSubmit={handleSubmit}
@@ -826,10 +1006,63 @@ export default function ChatInterface({
           {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
         </button>
 
+=======
+      {/* Voice Recording Overlay Banner */}
+      {isRecording && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          borderRadius: '0.85rem',
+          padding: '0.75rem 1.25rem',
+          marginBottom: '0.75rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          animation: 'fadeIn 0.2s ease',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#ef4444', fontWeight: '600' }}>
+            <div style={{
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              background: '#ef4444',
+              animation: 'pulseGlow 1s infinite',
+            }} />
+            <span>{t.recording} ({5 - recordingSeconds}s)</span>
+          </div>
+          <button
+            onClick={handleStopRecording}
+            style={{
+              background: '#ef4444',
+              color: '#fff',
+              padding: '0.4rem 0.85rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.82rem',
+              fontWeight: '600',
+            }}
+          >
+            {t.stopRecording}
+          </button>
+        </div>
+      )}
+
+      {/* Chat Input Bar */}
+      <form onSubmit={handleSubmit} style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.6rem',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--bg-card-border)',
+        borderRadius: '1rem',
+        padding: '0.5rem 0.6rem 0.5rem 1rem',
+        boxShadow: 'var(--shadow-md)',
+      }}>
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
         <input
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
+<<<<<<< HEAD
           placeholder={isRecording ? 'Listening... Speak your question now' : (t.typePlaceholder || 'Ask anything about PACS, PMFBY, KCC loans, complaints in any language...')}
           disabled={isLoading}
           style={{
@@ -862,6 +1095,56 @@ export default function ChatInterface({
           }}
         >
           <Send size={18} />
+=======
+          placeholder={t.chatPlaceholder}
+          disabled={isLoading || isRecording}
+          style={{
+            flex: 1,
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            color: 'var(--text-primary)',
+            fontSize: '0.98rem',
+            fontFamily: 'inherit',
+          }}
+        />
+
+        {/* Voice Input Button */}
+        <button
+          type="button"
+          onClick={handleToggleRecording}
+          disabled={isLoading}
+          style={{
+            background: isRecording ? '#ef4444' : 'rgba(148, 163, 184, 0.15)',
+            color: isRecording ? '#ffffff' : 'var(--text-primary)',
+            width: '42px',
+            height: '42px',
+            borderRadius: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s ease',
+          }}
+          title={t.recordVoice}
+        >
+          {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+        </button>
+
+        {/* Send Button */}
+        <button
+          type="submit"
+          disabled={!inputText.trim() || isLoading || isRecording}
+          className="btn-primary"
+          style={{
+            padding: '0.65rem 1.1rem',
+            borderRadius: '0.75rem',
+            opacity: (!inputText.trim() || isLoading || isRecording) ? 0.5 : 1,
+            cursor: (!inputText.trim() || isLoading || isRecording) ? 'not-allowed' : 'pointer',
+          }}
+        >
+          <Send size={18} />
+          <span className="hide-mobile">{t.send}</span>
+>>>>>>> 81da5195a93e95f1f781c66ff8e3f8902b68e3c5
         </button>
       </form>
     </div>
