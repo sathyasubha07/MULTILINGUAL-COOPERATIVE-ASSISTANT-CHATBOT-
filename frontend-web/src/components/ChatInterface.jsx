@@ -246,6 +246,19 @@ export default function ChatInterface({
     window.speechSynthesis.speak(utterance);
   };
 
+  const detectScriptLanguage = (str) => {
+    if (!str) return langCode || 'en';
+    if (/[\u0B80-\u0BFF]/.test(str)) return 'ta'; // Tamil
+    if (/[\u0900-\u097F]/.test(str)) return 'hi'; // Hindi
+    if (/[\u0C00-\u0C7F]/.test(str)) return 'te'; // Telugu
+    if (/[\u0C80-\u0CFF]/.test(str)) return 'kn'; // Kannada
+    if (/[\u0D00-\u0D7F]/.test(str)) return 'ml'; // Malayalam
+    if (/[\u0980-\u09FF]/.test(str)) return 'bn'; // Bengali
+    if (/[\u0A80-\u0AFF]/.test(str)) return 'gu'; // Gujarati
+    if (/[\u0A00-\u0A7F]/.test(str)) return 'pa'; // Punjabi
+    return langCode || 'en';
+  };
+
   // Pure Native Indic Text-To-Speech Synthesis via Backend Neural Voice Engine
   const toggleSpeech = async (messageId, text) => {
     // 1. If already playing this message -> pause
@@ -279,10 +292,11 @@ export default function ChatInterface({
     setAudioState({ messageId, status: 'loading' });
 
     const cleanText = text.replace(/[#*`📌⚠️🏛️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•]/g, '').trim();
+    const effectiveLang = detectScriptLanguage(cleanText);
 
     try {
       // Fetch Pure Native Voice from Backend (/api/v1/chat/tts)
-      const audioUrl = await fetchTTSAudio(cleanText, langCode);
+      const audioUrl = await fetchTTSAudio(cleanText, effectiveLang);
       if (audioUrl) {
         const audio = new Audio(audioUrl);
         audio.playbackRate = 1.0;
@@ -299,18 +313,18 @@ export default function ChatInterface({
           currentAudioRef.current = null;
         };
         audio.onerror = () => {
-          fallbackSpeechSynthesis(messageId, text, langCode);
+          console.warn('Backend audio element playback error');
+          setAudioState({ messageId: null, status: 'idle' });
+          currentAudioRef.current = null;
         };
 
         await audio.play();
         return;
       }
     } catch (err) {
-      console.warn('Backend TTS playback failed, falling back to browser synthesis:', err);
+      console.warn('Backend TTS playback failed:', err);
+      setAudioState({ messageId: null, status: 'idle' });
     }
-
-    // Fallback if backend audio stream is unavailable
-    fallbackSpeechSynthesis(messageId, text, langCode);
   };
 
   return (
