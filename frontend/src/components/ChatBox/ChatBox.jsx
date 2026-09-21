@@ -67,18 +67,32 @@ export default function ChatBox() {
     setAudioState({ messageId: null, status: 'idle' });
   };
 
+  const detectScriptLanguage = (str) => {
+    if (!str) return language || 'en';
+    if (/[\u0B80-\u0BFF]/.test(str)) return 'ta'; // Tamil
+    if (/[\u0900-\u097F]/.test(str)) return 'hi'; // Hindi
+    if (/[\u0C00-\u0C7F]/.test(str)) return 'te'; // Telugu
+    if (/[\u0C80-\u0CFF]/.test(str)) return 'kn'; // Kannada
+    if (/[\u0D00-\u0D7F]/.test(str)) return 'ml'; // Malayalam
+    if (/[\u0980-\u09FF]/.test(str)) return 'bn'; // Bengali
+    if (/[\u0A80-\u0AFF]/.test(str)) return 'gu'; // Gujarati
+    if (/[\u0A00-\u0A7F]/.test(str)) return 'pa'; // Punjabi
+    return language || 'en';
+  };
+
   const playAssistantSpeech = async (messageId, text, langCode) => {
     stopCurrentAudio();
     if (!text) return;
 
+    const detectedLang = detectScriptLanguage(text) || langCode || language;
     setAudioState({ messageId, status: 'loading' });
 
     try {
-      // 1. Try Thanushree's Backend TTS Engine (/chat/tts)
-      const audioUrl = await fetchTTSAudio(text, langCode || language);
+      // 1. Try Backend TTS Engine (/chat/tts) with detected Indic language
+      const audioUrl = await fetchTTSAudio(text, detectedLang);
       if (audioUrl) {
         const audio = new Audio(audioUrl);
-        audio.playbackRate = 1.0; // Normal speech speed
+        audio.playbackRate = 1.0;
         currentAudioRef.current = audio;
 
         audio.onplay = () => setAudioState({ messageId, status: 'playing' });
@@ -92,7 +106,7 @@ export default function ChatBox() {
           currentAudioRef.current = null;
         };
         audio.onerror = () => {
-          fallbackSpeechSynthesis(messageId, text, langCode);
+          fallbackSpeechSynthesis(messageId, text, detectedLang);
         };
 
         await audio.play();
@@ -103,7 +117,7 @@ export default function ChatBox() {
     }
 
     // Fallback: Web Speech API
-    fallbackSpeechSynthesis(messageId, text, langCode);
+    fallbackSpeechSynthesis(messageId, text, detectedLang);
   };
 
   const getVoiceForLanguage = (code) => {
@@ -126,7 +140,7 @@ export default function ChatBox() {
         te: ['telugu', 'తెలుగు', 'mohan', 'shruti'],
         kn: ['kannada', 'ಕನ್ನಡ', 'gagan', 'sapna'],
         ml: ['malayalam', 'മലയാളം', 'midhun', 'sobhana'],
-        mr: ['marathi', 'मराठी', 'aarohi', 'manohar'],
+        mr: ['marathi', 'मராठी', 'aarohi', 'manohar'],
         bn: ['bengali', 'বাংলা', 'bashkar', 'tanishaa'],
         gu: ['gujarati', 'ગુજરાતી', 'niranjan', 'dhwani'],
         pa: ['punjabi', 'ਪੰਜਾਬੀ', 'rajan'],
@@ -136,11 +150,7 @@ export default function ChatBox() {
       match = voices.find((v) => kws.some((kw) => v.name.toLowerCase().includes(kw)));
     }
 
-    // 3. Fallback to any Indian accent voice if specific Indic voice not locally installed
-    if (!match && prefix !== 'en') {
-      match = voices.find((v) => v.lang.includes('IN') || v.name.toLowerCase().includes('india'));
-    }
-
+    // 3. For Indic text, do not fall back to British/American voice if no native voice found
     return match || null;
   };
 
@@ -150,7 +160,7 @@ export default function ChatBox() {
       return;
     }
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[#*`📌⚠️🏛️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒]/g, '').trim();
+    const cleanText = text.replace(/[#*`📌⚠️🏛️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•]/g, '').trim();
     const utterance = new SpeechSynthesisUtterance(cleanText);
 
     const langLocales = {
@@ -174,6 +184,11 @@ export default function ChatBox() {
       utterance.voice = chosenVoice;
       utterance.lang = chosenVoice.lang;
     } else {
+      if (targetLang !== 'en') {
+        // Skip British fallback if no native Indic voice installed
+        setAudioState({ messageId: null, status: 'idle' });
+        return;
+      }
       utterance.lang = targetLocale;
     }
 

@@ -316,20 +316,41 @@ class OfficerRecommender:
 
         contact_str = " | ".join(contacts) if contacts else "Office Directory Listed"
 
+        district_ta = {"Madurai": "மதுரை", "Theni": "தேனி", "Pudukkottai": "புதுக்கோட்டை", "Erode": "ஈரோடு", "Karur": "கரூர்", "Coimbatore": "கோயம்புத்தூர்", "Dindigul": "திண்டுக்கல்", "Salem": "சேலம்", "Tiruchirappalli": "திருச்சிராப்பள்ளி"}.get(district, district)
+        district_hi = {"Madurai": "मदुरै", "Theni": "थेनी", "Pudukkottai": "पुदुक्कोट्टई", "Erode": "इरोड", "Karur": "करूर", "Coimbatore": "कोयंबटूर", "Dindigul": "डिंडीगुल", "Salem": "सेलम", "Tiruchirappalli": "तिरुचिरापल्ली"}.get(district, district)
+
+        dept_ta = {"Agriculture": "வேளாண்மைத் துறை", "Horticulture": "தோட்டக்கலைத் துறை", "Cooperation": "கூட்டுறவுத் துறை", "Revenue": "வருவாய்த் துறை", "District Administration": "மாவட்ட நிர்வாகம்"}.get(dept, dept)
+        dept_hi = {"Agriculture": "कृषि विभाग", "Horticulture": "बागवानी विभाग", "Cooperation": "सहकारिता विभाग", "Revenue": "राजस्व विभाग", "District Administration": "जिला प्रशासन"}.get(dept, dept)
+
+        role_ta = role
+        role_hi = role
+        if "Joint Director of Agriculture" in role:
+            role_ta = "வேளாண்மை இணை இயக்குநர் & PMFBY மாவட்ட ஒருங்கிணைப்பு அலுவலர்"
+            role_hi = "संयुक्त कृषि निदेशक एवं पीएमएफबीवाई जिला नोडल अधिकारी"
+        elif "Deputy Registrar" in role:
+            role_ta = "கூட்டுறவு சங்கங்களின் துணைப் பதிவாளர் (DRCS)"
+            role_hi = "सहकारी समितियों के उप निबंधक (DRCS)"
+        elif "Joint Registrar" in role:
+            role_ta = "கூட்டுறவு சங்கங்களின் இணைப் பதிவாளர் (JRCS)"
+            role_hi = "सहकारी समितियों के संयुक्त निबंधक (JRCS)"
+        elif "District Collector" in role:
+            role_ta = "மாவட்ட ஆட்சித் தலைவர் (மாவட்ட ஆட்சியர்)"
+            role_hi = "जिला मजिस्ट्रेट / जिला कलेक्टर"
+
         if language == "ta":
             return (
-                f"### 🏛️ பரிந்துரைக்கப்படும் அதிகாரப்பூர்வ தொடர்பு ({district} மாவட்டம்)\n"
-                f"- **அதிகாரி பெயர் / பதவி:** **{name}** ({role})\n"
-                f"- **துறை:** {dept}\n"
+                f"### 🏛️ பரிந்துரைக்கப்படும் அதிகாரப்பூர்வ தொடர்பு ({district_ta} மாவட்டம்)\n"
+                f"- **அதிகாரி பெயர் / பதவி:** **{name}** ({role_ta})\n"
+                f"- **துறை:** {dept_ta}\n"
                 f"- **தொடர்பு விவரங்கள்:** {contact_str}\n"
                 f"- **சரிபார்க்கப்பட்ட ஆதாரம்:** [மாவட்ட நிர்வாக தொடர்பு கையேடு]({source})\n"
                 f"*(குறிப்பு: இத்தகவல் அதிகாரப்பூர்வ அரசு தரவுத்தளத்தில் இருந்து சரிபார்க்கப்பட்டது)*"
             )
         elif language == "hi":
             return (
-                f"### 🏛️ अनुशंसित आधिकारिक संपर्क ({district} जिला)\n"
-                f"- **अधिकारी का नाम / पद:** **{name}** ({role})\n"
-                f"- **विभाग:** {dept}\n"
+                f"### 🏛️ अनुशंसित आधिकारिक संपर्क ({district_hi} जिला)\n"
+                f"- **अधिकारी का नाम / पद:** **{name}** ({role_hi})\n"
+                f"- **विभाग:** {dept_hi}\n"
                 f"- **संपर्क विवरण:** {contact_str}\n"
                 f"- **सत्यापित आधिकारिक स्रोत:** [जिला प्रशासन डायरेक्टरी]({source})\n"
                 f"*(नोट: यह विवरण आधिकारिक सरकारी डेटाबेस द्वारा सत्यापित है)*"
