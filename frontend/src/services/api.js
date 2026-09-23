@@ -52,22 +52,42 @@ export async function sendVoiceQuery(audioBlob, language = 'en', transcript = ''
 /**
  * Fetch Text-to-Speech audio from the backend TTS engine.
  * @param {string} text - The text to synthesize
- * @param {string} language - The language code (e.g. 'hi', 'ta', 'en')
+const _kioskAudioCache = new Map();
+
+/**
+ * Fetch Text-to-Speech audio from the backend TTS engine.
+ * Features client-side in-memory caching and 3.5s timeout for fast response.
+ * @param {string} text - The text to synthesize
+ * @param {string} language - The language code (e.g. 'hi', 'ta', 'en', 'ml', 'te')
  * @returns {Promise<string|null>} Object URL pointing to the audio stream, or null
  */
 export async function fetchTTSAudio(text, language = 'en') {
+  if (!text || !text.trim()) return null;
+  const cacheKey = `${language}:${text.slice(0, 150).trim()}`;
+  if (_kioskAudioCache.has(cacheKey)) {
+    return _kioskAudioCache.get(cacheKey);
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3500);
+
   try {
     const res = await fetch(`${API_BASE_URL}/chat/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, language }),
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     if (res.ok) {
       const blob = await res.blob();
-      return URL.createObjectURL(blob);
+      const objUrl = URL.createObjectURL(blob);
+      _kioskAudioCache.set(cacheKey, objUrl);
+      return objUrl;
     }
   } catch (err) {
-    console.warn('Backend TTS request failed:', err);
+    clearTimeout(timeoutId);
+    console.warn('Backend TTS request timed out or failed:', err);
   }
   return null;
 }

@@ -109,8 +109,14 @@ export default function ChatBox() {
           fallbackSpeechSynthesis(messageId, text, detectedLang);
         };
 
-        await audio.play();
-        return;
+        try {
+          await audio.play();
+          return;
+        } catch (playErr) {
+          console.warn('Audio play failed, falling back to Web Speech:', playErr);
+          fallbackSpeechSynthesis(messageId, text, detectedLang);
+          return;
+        }
       }
     } catch (err) {
       console.warn('Backend audio play error, falling back to Web Speech:', err);

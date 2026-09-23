@@ -10,6 +10,8 @@ Public API
 
 import io
 import logging
+import re
+import hashlib
 from pathlib import Path
 from typing import Optional, Union
 
@@ -131,31 +133,41 @@ class PiperTTSBackend(TTSBackend):
         return voice
 
 
-import re
-import hashlib
-
 _TTS_AUDIO_CACHE = {}
 
-def clean_speech_text(text: str, max_chars: int = 350) -> str:
+
+def clean_speech_text(text: str, max_chars: int = 220) -> str:
     """
     Sanitizes AI response text into natural, spoken voice sentences:
     - Strips markdown formatting, links, URLs, raw citations, tables, and emojis.
-    - Limits length to key actionable sentences for instantaneous (<500ms) audio playback.
+    - Eliminates unicode surrogates to prevent encoding errors.
+    - Limits length to the key summary/actionable sentences for ultra-fast (<200ms) audio playback.
     """
-    cleaned = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+    if not text:
+        return ""
+    
+    # 1. Eliminate any surrogate pairs/invalid code units
+    cleaned = text.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
+
+    # 2. Strip URLs, links, markdown, and citation lines
+    cleaned = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', cleaned)
     cleaned = re.sub(r'https?://\S+', '', cleaned)
     cleaned = re.sub(r'🏛️.*', '', cleaned)
-    cleaned = re.sub(r'(?:Official Sources|Statutory Citations|சட்டப்பிரிவு மேற்கோள்கள்|ஆதாரம்|आधिकारिक संदर्भ|संदर्भ).*', '', cleaned, flags=re.IGNORECASE)
-    cleaned = re.sub(r'[#*`📌⚠️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•\-|]', ' ', cleaned)
+    cleaned = re.sub(r'(?:Official Sources|Statutory Citations|Verified Sources|சட்டப்பிரிவு மேற்கோள்கள்|ஆதாரம்|ஆவணங்கள்|ஆணையரகம்|ஆட்சியர்|ஆணை|आधिकारिक संदर्भ|संदर्भ|സ്രോതസ്സുകൾ|അവലംബം).*', '', cleaned, flags=re.IGNORECASE)
+
+    # 3. Strip emojis and special formatting symbols
+    cleaned = re.sub(r'[\U00010000-\U0010ffff]', '', cleaned)  # All astral emojis
+    cleaned = re.sub(r'[\ud800-\udfff]', '', cleaned)          # Surrogates
+    cleaned = re.sub(r'[#*`📌⚠️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•\-|~_]', ' ', cleaned)
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
 
     if len(cleaned) <= max_chars:
         return cleaned
 
-    # Truncate at natural punctuation boundary
+    # 4. Truncate at natural punctuation boundary within max_chars
     cut = cleaned[:max_chars]
-    last_p = max(cut.rfind('.'), cut.rfind('।'), cut.rfind('?'), cut.rfind('!'), cut.rfind(','))
-    if last_p > 80:
+    last_p = max(cut.rfind('.'), cut.rfind('।'), cut.rfind('?'), cut.rfind('!'), cut.rfind(','), cut.rfind(';'))
+    if last_p > 60:
         return cut[:last_p + 1].strip()
     return cut.strip()
 
@@ -202,18 +214,15 @@ class GttsFallbackBackend(TTSBackend):
                 error="Empty text — nothing to synthesize.",
             )
 
-        spoken_text = clean_speech_text(text, max_chars=350)
-        if not is_language_supported(language):
-            return TTSResult(
-                audio_bytes=b"",
-                sample_rate=DEFAULT_SAMPLE_RATE,
-                language=language,
-                engine=self.name,
-                error=f"Unsupported language: '{language}'.",
-            )
+        spoken_text = clean_speech_text(text, max_chars=220)
+        if not spoken_text:
+            spoken_text = text[:150].strip()
 
-        # Check Cache
-        cache_key = (hashlib.md5(spoken_text.encode('utf-8')).hexdigest(), language)
+        if not is_language_supported(language):
+            language = "en"
+
+        # Check Cache safely
+        cache_key = (hashlib.md5(spoken_text.encode('utf-8', 'ignore')).hexdigest(), language)
         if cache_key in _TTS_AUDIO_CACHE:
             return TTSResult(
                 audio_bytes=_TTS_AUDIO_CACHE[cache_key],
@@ -225,7 +234,7 @@ class GttsFallbackBackend(TTSBackend):
         from gtts import gTTS
 
         lang_cfg = SUPPORTED_LANGUAGES.get(language, {})
-        tld = lang_cfg.get("gtts_tld", "co.in")
+        tld = lang_cfg.get("gtts_tld", "com")
 
         tts = gTTS(text=spoken_text, lang=language, tld=tld)
 
@@ -233,7 +242,7 @@ class GttsFallbackBackend(TTSBackend):
         tts.write_to_fp(mp3_buf)
         mp3_bytes = mp3_buf.getvalue()
 
-        # Cache synthesized audio
+        # Cache synthesized audio for instant future playback
         _TTS_AUDIO_CACHE[cache_key] = mp3_bytes
 
         return TTSResult(

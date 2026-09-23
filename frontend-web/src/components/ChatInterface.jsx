@@ -313,17 +313,25 @@ export default function ChatInterface({
           currentAudioRef.current = null;
         };
         audio.onerror = () => {
-          console.warn('Backend audio element playback error');
-          setAudioState({ messageId: null, status: 'idle' });
-          currentAudioRef.current = null;
+          console.warn('Backend audio element playback error, falling back to Web Speech');
+          fallbackSpeechSynthesis(messageId, cleanText, effectiveLang);
         };
 
-        await audio.play();
-        return;
+        try {
+          await audio.play();
+          return;
+        } catch (playErr) {
+          console.warn('Audio play failed, falling back to Web Speech:', playErr);
+          fallbackSpeechSynthesis(messageId, cleanText, effectiveLang);
+          return;
+        }
       }
+
+      // If backend TTS did not return audio, fall back directly to Web Speech Synthesis
+      fallbackSpeechSynthesis(messageId, cleanText, effectiveLang);
     } catch (err) {
-      console.warn('Backend TTS playback failed:', err);
-      setAudioState({ messageId: null, status: 'idle' });
+      console.warn('Backend TTS playback failed, using Web Speech fallback:', err);
+      fallbackSpeechSynthesis(messageId, cleanText, effectiveLang);
     }
   };
 
