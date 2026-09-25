@@ -8,10 +8,12 @@ export default function VoiceInput({ onVoiceResult, disabled }) {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const recognitionRef = useRef(null);
+  const transcriptRef = useRef('');
 
   const startRecording = async () => {
     setIsRecording(true);
     audioChunksRef.current = [];
+    transcriptRef.current = '';
 
     // Map language code to speech recognition locale
     const langLocales = {
@@ -28,23 +30,38 @@ export default function VoiceInput({ onVoiceResult, disabled }) {
       or: 'or-IN',
     };
 
-    let transcriptText = '';
-
-    // Try Web Speech API if supported
+    // 1. Initialize Web Speech Recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       try {
         const recognition = new SpeechRecognition();
         recognition.lang = langLocales[language] || 'en-IN';
-        recognition.interimResults = false;
+        recognition.continuous = false;
+        recognition.interimResults = true;
         recognition.maxAlternatives = 1;
 
         recognition.onresult = (event) => {
-          if (event.results && event.results[0] && event.results[0][0]) {
-            transcriptText = event.results[0][0].transcript;
+          let fullTranscript = '';
+          for (let i = 0; i < event.results.length; i++) {
+            if (event.results[i][0]) {
+              fullTranscript += event.results[i][0].transcript;
+            }
+          }
+          if (fullTranscript.trim()) {
+            transcriptRef.current = fullTranscript.trim();
           }
         };
-        recognition.onerror = () => {};
+
+        recognition.onerror = (err) => {
+          console.warn('SpeechRecognition error:', err);
+        };
+
+        recognition.onend = () => {
+          if (isRecording && transcriptRef.current) {
+            stopRecording();
+          }
+        };
+
         recognition.start();
         recognitionRef.current = recognition;
       } catch (err) {
@@ -52,7 +69,7 @@ export default function VoiceInput({ onVoiceResult, disabled }) {
       }
     }
 
-    // Try MediaStream recording
+    // 2. Initialize MediaStream recording for audio fallback
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -66,20 +83,20 @@ export default function VoiceInput({ onVoiceResult, disabled }) {
         };
 
         mediaRecorder.onstop = () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+          const audioBlob = audioChunksRef.current.length > 0 ? new Blob(audioChunksRef.current, { type: 'audio/wav' }) : null;
           stream.getTracks().forEach((track) => track.stop());
+          const finalTranscript = transcriptRef.current.trim();
           if (onVoiceResult) {
-            onVoiceResult(audioBlob, transcriptText);
+            onVoiceResult(audioBlob, finalTranscript);
           }
         };
 
         mediaRecorder.start();
       } else {
-        // Fallback for environment without mic hardware
         mediaRecorderRef.current = null;
       }
     } catch (err) {
-      console.warn('Microphone access not available or denied:', err);
+      console.warn('Microphone stream access not available or denied:', err);
       mediaRecorderRef.current = null;
     }
   };
@@ -93,11 +110,13 @@ export default function VoiceInput({ onVoiceResult, disabled }) {
     }
 
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
+      try {
+        mediaRecorderRef.current.stop();
+      } catch {}
     } else {
-      // Fallback invocation if mediaRecorder wasn't active
+      const finalTranscript = transcriptRef.current.trim();
       if (onVoiceResult) {
-        onVoiceResult(null, '');
+        onVoiceResult(null, finalTranscript);
       }
     }
   };
