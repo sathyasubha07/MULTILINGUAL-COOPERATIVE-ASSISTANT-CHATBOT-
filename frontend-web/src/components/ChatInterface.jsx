@@ -281,6 +281,11 @@ export default function ChatInterface({
       utterance.voice = chosenVoice;
       utterance.lang = chosenVoice.lang;
     } else {
+      if (code !== 'en') {
+        // Prevent default English/British voice from reading Tamil or Indic text
+        setAudioState({ messageId: null, status: 'idle' });
+        return;
+      }
       utterance.lang = targetLocale;
     }
 

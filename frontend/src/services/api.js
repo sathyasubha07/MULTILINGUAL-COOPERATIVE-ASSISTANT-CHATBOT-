@@ -49,9 +49,6 @@ export async function sendVoiceQuery(audioBlob, language = 'en', transcript = ''
   return mockVoiceResponse(language);
 }
 
-/**
- * Fetch Text-to-Speech audio from the backend TTS engine.
- * @param {string} text - The text to synthesize
 const _kioskAudioCache = new Map();
 
 /**

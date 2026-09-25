@@ -220,6 +220,11 @@ export default function ChatBox() {
       utterance.voice = chosenVoice;
       utterance.lang = chosenVoice.lang;
     } else {
+      if (targetLang !== 'en') {
+        // Prevent default English/British voice from reading Tamil or Indic text
+        setAudioState({ messageId: null, status: 'idle' });
+        return;
+      }
       utterance.lang = targetLocale;
     }
 
