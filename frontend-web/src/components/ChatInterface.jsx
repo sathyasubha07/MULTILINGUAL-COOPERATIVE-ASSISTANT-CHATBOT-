@@ -284,6 +284,7 @@ export default function ChatInterface({
       utterance.lang = targetLocale;
     }
 
+    utterance.volume = 1.0;
     utterance.rate = code === 'ta' ? 1.0 : 1.05;
     utterance.pitch = 1.0;
 
@@ -347,6 +348,7 @@ export default function ChatInterface({
       const audioUrl = await fetchTTSAudio(spokenText, effectiveLang);
       if (audioUrl) {
         const audio = new Audio(audioUrl);
+        audio.volume = 1.0;
         audio.playbackRate = effectiveLang === 'ta' ? 1.0 : 1.05;
         currentAudioRef.current = audio;
 

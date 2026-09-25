@@ -117,6 +117,7 @@ export default function ChatBox() {
       const audioUrl = await fetchTTSAudio(spokenText, detectedLang);
       if (audioUrl) {
         const audio = new Audio(audioUrl);
+        audio.volume = 1.0;
         audio.playbackRate = detectedLang === 'ta' ? 1.0 : 1.05;
         currentAudioRef.current = audio;
 
@@ -219,16 +220,11 @@ export default function ChatBox() {
       utterance.voice = chosenVoice;
       utterance.lang = chosenVoice.lang;
     } else {
-      if (targetLang !== 'en') {
-        // Skip British fallback if no native Indic voice installed
-        setAudioState({ messageId: null, status: 'idle' });
-        return;
-      }
       utterance.lang = targetLocale;
     }
 
+    utterance.volume = 1.0;
     utterance.rate = targetLang === 'ta' ? 1.0 : 1.05;
-    utterance.pitch = 1.0;
     utterance.pitch = 1.0;
 
     utterance.onstart = () => setAudioState({ messageId, status: 'playing' });
