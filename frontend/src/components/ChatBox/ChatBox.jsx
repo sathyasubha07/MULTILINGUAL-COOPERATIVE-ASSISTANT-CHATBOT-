@@ -80,19 +80,44 @@ export default function ChatBox() {
     return language || 'en';
   };
 
+  const prepareSpokenText = (rawText) => {
+    if (!rawText) return '';
+    let text = rawText;
+    text = text.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
+    text = text.replace(/https?:\/\/\S+/g, '');
+    text = text.replace(/🏛️.*$/gm, '');
+    text = text.replace(/(?:Official Sources|Verified Sources|சட்டப்பிரிவு மேற்கோள்கள்|ஆதாரம்|ஆவணங்கள்|ஆணையரகம்|ஆட்சியர்|ஆணை|आधिकारिक संदर्भ|संदर्भ|സ്രോതസ്സുകൾ|അവലംബം).*$/gim, '');
+    text = text.replace(/\|/g, ' ');
+    text = text.replace(/[#*`_~]/g, ' ');
+    text = text.replace(/^[-•]\s+/gm, '');
+    text = text.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+    text = text.replace(/[📌⚠️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒📐📝📋🎯💰🔍🏛️•\-|~]/g, ' ');
+    text = text.replace(/\s+/g, ' ').trim();
+    if (text.length > 180) {
+      const cut = text.slice(0, 180);
+      const lastP = Math.max(cut.lastIndexOf('.'), cut.lastIndexOf('।'), cut.lastIndexOf('?'), cut.lastIndexOf('!'), cut.lastIndexOf(','));
+      if (lastP > 50) {
+        return cut.slice(0, lastP + 1).trim();
+      }
+      return cut.trim();
+    }
+    return text;
+  };
+
   const playAssistantSpeech = async (messageId, text, langCode) => {
     stopCurrentAudio();
     if (!text) return;
 
-    const detectedLang = detectScriptLanguage(text) || langCode || language;
+    const spokenText = prepareSpokenText(text);
+    const detectedLang = detectScriptLanguage(spokenText) || langCode || language;
     setAudioState({ messageId, status: 'loading' });
 
     try {
       // 1. Try Backend TTS Engine (/chat/tts) with detected Indic language
-      const audioUrl = await fetchTTSAudio(text, detectedLang);
+      const audioUrl = await fetchTTSAudio(spokenText, detectedLang);
       if (audioUrl) {
         const audio = new Audio(audioUrl);
-        audio.playbackRate = 1.05;
+        audio.playbackRate = detectedLang === 'ta' ? 1.0 : 1.05;
         currentAudioRef.current = audio;
 
         audio.onplay = () => setAudioState({ messageId, status: 'playing' });
@@ -106,7 +131,7 @@ export default function ChatBox() {
           currentAudioRef.current = null;
         };
         audio.onerror = () => {
-          fallbackSpeechSynthesis(messageId, text, detectedLang);
+          fallbackSpeechSynthesis(messageId, spokenText, detectedLang);
         };
 
         try {
@@ -114,7 +139,7 @@ export default function ChatBox() {
           return;
         } catch (playErr) {
           console.warn('Audio play failed, falling back to Web Speech:', playErr);
-          fallbackSpeechSynthesis(messageId, text, detectedLang);
+          fallbackSpeechSynthesis(messageId, spokenText, detectedLang);
           return;
         }
       }
@@ -123,7 +148,7 @@ export default function ChatBox() {
     }
 
     // Fallback: Web Speech API
-    fallbackSpeechSynthesis(messageId, text, detectedLang);
+    fallbackSpeechSynthesis(messageId, spokenText, detectedLang);
   };
 
   const getVoiceForLanguage = (code) => {
@@ -141,22 +166,26 @@ export default function ChatBox() {
     // 2. Keyword match by voice name
     if (!match) {
       const nameKeywords = {
-        ta: ['tamil', 'தமிழ்', 'valluvar', 'pallavi'],
-        hi: ['hindi', 'हिन्दी', 'swara', 'madhur', 'kalpana', 'hemant'],
-        te: ['telugu', 'తెలుగు', 'mohan', 'shruti'],
-        kn: ['kannada', 'ಕನ್ನಡ', 'gagan', 'sapna'],
-        ml: ['malayalam', 'മലയാളം', 'midhun', 'sobhana'],
-        mr: ['marathi', 'मराठी', 'aarohi', 'manohar'],
-        bn: ['bengali', 'বাংলা', 'bashkar', 'tanishaa'],
-        gu: ['gujarati', 'ગુજરાતી', 'niranjan', 'dhwani'],
-        pa: ['punjabi', 'ਪੰਜਾਬੀ', 'rajan'],
-        en: ['english', 'india', 'en-in', 'natural'],
+        ta: ['tamil', 'தமிழ்', 'valluvar', 'pallavi', 'india', 'ta-in'],
+        hi: ['hindi', 'हिन्दी', 'swara', 'madhur', 'kalpana', 'hemant', 'hi-in'],
+        te: ['telugu', 'తెలుగు', 'mohan', 'shruti', 'te-in'],
+        kn: ['kannada', 'ಕನ್ನಡ', 'gagan', 'sapna', 'kn-in'],
+        ml: ['malayalam', 'മലയാളം', 'midhun', 'sobhana', 'ml-in'],
+        mr: ['marathi', 'मराठी', 'aarohi', 'manohar', 'mr-in'],
+        bn: ['bengali', 'বাংলা', 'bashkar', 'tanishaa', 'bn-in'],
+        gu: ['gujarati', 'ગુજરાતી', 'niranjan', 'dhwani', 'gu-in'],
+        pa: ['punjabi', 'ਪੰਜਾਬੀ', 'rajan', 'pa-in'],
+        en: ['en-in', 'india', 'natural', 'google us english', 'george', 'susan', 'rishi', 'heera', 'english'],
       };
       const kws = nameKeywords[prefix] || [];
       match = voices.find((v) => kws.some((kw) => v.name.toLowerCase().includes(kw)));
     }
 
-    // 3. For Indic text, do not fall back to British/American voice if no native voice found
+    // 3. Fallback for English
+    if (!match && prefix === 'en') {
+      match = voices.find((v) => v.lang.toLowerCase().includes('en'));
+    }
+
     return match || null;
   };
 
@@ -166,8 +195,8 @@ export default function ChatBox() {
       return;
     }
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[#*`📌⚠️🏛️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•]/g, '').trim();
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+    const spokenText = prepareSpokenText(text);
+    const utterance = new SpeechSynthesisUtterance(spokenText);
 
     const langLocales = {
       en: 'en-IN',
@@ -198,7 +227,8 @@ export default function ChatBox() {
       utterance.lang = targetLocale;
     }
 
-    utterance.rate = 1.05;
+    utterance.rate = targetLang === 'ta' ? 1.0 : 1.05;
+    utterance.pitch = 1.0;
     utterance.pitch = 1.0;
 
     utterance.onstart = () => setAudioState({ messageId, status: 'playing' });

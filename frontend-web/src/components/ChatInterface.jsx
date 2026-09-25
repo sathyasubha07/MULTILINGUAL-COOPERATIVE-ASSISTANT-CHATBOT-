@@ -87,7 +87,38 @@ export default function ChatInterface({
     }
   };
 
-  // Web Speech API Voice Recognition
+  const prepareSpokenText = (rawText) => {
+    if (!rawText) return '';
+    let text = rawText;
+    // 1. Remove markdown links, URLs, and citations
+    text = text.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
+    text = text.replace(/https?:\/\/\S+/g, '');
+    text = text.replace(/🏛️.*$/gm, '');
+    text = text.replace(/(?:Official Sources|Verified Sources|சட்டப்பிரிவு மேற்கோள்கள்|ஆதாரம்|ஆவணங்கள்|ஆணையரகம்|ஆட்சியர்|ஆணை|आधिकारिक संदर्भ|संदर्भ|സ്രോതസ്സുകൾ|അവലംബം).*$/gim, '');
+    
+    // 2. Remove markdown formatting, headers, tables, bullet symbols
+    text = text.replace(/\|/g, ' ');
+    text = text.replace(/[#*`_~]/g, ' ');
+    text = text.replace(/^[-•]\s+/gm, '');
+    
+    // 3. Remove emojis and special non-spoken characters
+    text = text.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+    text = text.replace(/[📌⚠️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒📐📝📋🎯💰🔍🏛️•\-|~]/g, ' ');
+    text = text.replace(/\s+/g, ' ').trim();
+    
+    // 4. Extract key concise sentences (max 180 chars) for ultra-fast, smooth speech
+    if (text.length > 180) {
+      const cut = text.slice(0, 180);
+      const lastP = Math.max(cut.lastIndexOf('.'), cut.lastIndexOf('।'), cut.lastIndexOf('?'), cut.lastIndexOf('!'), cut.lastIndexOf(','));
+      if (lastP > 50) {
+        return cut.slice(0, lastP + 1).trim();
+      }
+      return cut.trim();
+    }
+    return text;
+  };
+
+  // Web Speech API Voice Recognition with Real-time Interim Transcription
   const handleToggleRecording = () => {
     if (isRecording) {
       if (recognitionRef.current) {
@@ -99,57 +130,74 @@ export default function ChatInterface({
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Speech Recognition is not supported by your browser. Please use Google Chrome or Edge.');
+      alert('Speech Recognition is not supported by your browser. Please use Google Chrome or Microsoft Edge.');
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognitionRef.current = recognition;
-
-    const langLocales = {
-      en: 'en-IN',
-      hi: 'hi-IN',
-      ta: 'ta-IN',
-      te: 'te-IN',
-      mr: 'mr-IN',
-      kn: 'kn-IN',
-      bn: 'bn-IN',
-      gu: 'gu-IN',
-      ml: 'ml-IN',
-      pa: 'pa-IN',
-    };
-
-    recognition.lang = langLocales[langCode] || 'en-IN';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-      setIsRecording(true);
-    };
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setIsRecording(false);
-      if (transcript && transcript.trim()) {
-        if (onSendVoice) {
-          onSendVoice(new Blob(['voice-recorded'], { type: 'audio/webm' }), transcript);
-        } else {
-          onSendMessage(transcript);
-        }
-      }
-    };
-
-    recognition.onerror = () => {
-      setIsRecording(false);
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-    };
-
     try {
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+
+      const langLocales = {
+        en: 'en-IN',
+        hi: 'hi-IN',
+        ta: 'ta-IN',
+        te: 'te-IN',
+        mr: 'mr-IN',
+        kn: 'kn-IN',
+        bn: 'bn-IN',
+        gu: 'gu-IN',
+        ml: 'ml-IN',
+        pa: 'pa-IN',
+      };
+
+      recognition.lang = langLocales[langCode] || 'en-IN';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setIsRecording(true);
+      };
+
+      let finalTranscript = '';
+
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        const currentText = (finalTranscript || interimTranscript).trim();
+        if (currentText) {
+          setInputText(currentText);
+        }
+      };
+
+      recognition.onerror = (err) => {
+        console.warn('Speech recognition error:', err);
+        setIsRecording(false);
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+        const textToSend = finalTranscript.trim() || inputText.trim();
+        if (textToSend) {
+          if (onSendVoice) {
+            onSendVoice(new Blob(['voice-recorded'], { type: 'audio/webm' }), textToSend);
+          } else {
+            onSendMessage(textToSend);
+          }
+          setInputText('');
+        }
+      };
+
       recognition.start();
-    } catch {
+    } catch (e) {
+      console.error('Failed to start speech recognition:', e);
       setIsRecording(false);
     }
   };
@@ -170,24 +218,24 @@ export default function ChatInterface({
     // 2. Keyword match by voice name
     if (!match) {
       const nameKeywords = {
-        ta: ['tamil', 'தமிழ்', 'valluvar', 'pallavi'],
-        hi: ['hindi', 'हिन्दी', 'swara', 'madhur', 'kalpana', 'hemant'],
-        te: ['telugu', 'తెలుగు', 'mohan', 'shruti'],
-        kn: ['kannada', 'ಕನ್ನಡ', 'gagan', 'sapna'],
-        ml: ['malayalam', 'മലയാളം', 'midhun', 'sobhana'],
-        mr: ['marathi', 'मराठी', 'aarohi', 'manohar'],
-        bn: ['bengali', 'বাংলা', 'bashkar', 'tanishaa'],
-        gu: ['gujarati', 'ગુજરાતી', 'niranjan', 'dhwani'],
-        pa: ['punjabi', 'ਪੰਜਾਬੀ', 'rajan'],
-        en: ['english', 'india', 'en-in', 'natural'],
+        ta: ['tamil', 'தமிழ்', 'valluvar', 'pallavi', 'india', 'ta-in'],
+        en: ['en-in', 'india', 'natural', 'google us english', 'george', 'susan', 'rishi', 'heera', 'english'],
+        hi: ['hindi', 'हिन्दी', 'swara', 'madhur', 'kalpana', 'hemant', 'hi-in'],
+        te: ['telugu', 'తెలుగు', 'mohan', 'shruti', 'te-in'],
+        kn: ['kannada', 'ಕನ್ನಡ', 'gagan', 'sapna', 'kn-in'],
+        ml: ['malayalam', 'മലയാളം', 'midhun', 'sobhana', 'ml-in'],
+        mr: ['marathi', 'मराठी', 'aarohi', 'manohar', 'mr-in'],
+        bn: ['bengali', 'বাংলা', 'bashkar', 'tanishaa', 'bn-in'],
+        gu: ['gujarati', 'ગુજરાતી', 'niranjan', 'dhwani', 'gu-in'],
+        pa: ['punjabi', 'ਪੰਜਾਬੀ', 'rajan', 'pa-in'],
       };
       const kws = nameKeywords[prefix] || [];
       match = voices.find((v) => kws.some((kw) => v.name.toLowerCase().includes(kw)));
     }
 
-    // 3. Fallback to any Indian accent voice if specific Indic voice not locally installed
-    if (!match && prefix !== 'en') {
-      match = voices.find((v) => v.lang.includes('IN') || v.name.toLowerCase().includes('india'));
+    // 3. Fallback for English
+    if (!match && prefix === 'en') {
+      match = voices.find((v) => v.lang.toLowerCase().includes('en'));
     }
 
     return match || null;
@@ -210,8 +258,8 @@ export default function ChatInterface({
       return;
     }
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[#*`📌⚠️🏛️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•]/g, '').trim();
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+    const spokenText = prepareSpokenText(text);
+    const utterance = new SpeechSynthesisUtterance(spokenText);
 
     const langLocales = {
       en: 'en-IN',
@@ -236,7 +284,7 @@ export default function ChatInterface({
       utterance.lang = targetLocale;
     }
 
-    utterance.rate = 1.05;
+    utterance.rate = code === 'ta' ? 1.0 : 1.05;
     utterance.pitch = 1.0;
 
     utterance.onstart = () => setAudioState({ messageId, status: 'playing' });
@@ -291,15 +339,15 @@ export default function ChatInterface({
 
     setAudioState({ messageId, status: 'loading' });
 
-    const cleanText = text.replace(/[#*`📌⚠️🏛️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•]/g, '').trim();
-    const effectiveLang = detectScriptLanguage(cleanText);
+    const spokenText = prepareSpokenText(text);
+    const effectiveLang = detectScriptLanguage(spokenText);
 
     try {
       // Fetch Pure Native Voice from Backend (/api/v1/chat/tts)
-      const audioUrl = await fetchTTSAudio(cleanText, effectiveLang);
+      const audioUrl = await fetchTTSAudio(spokenText, effectiveLang);
       if (audioUrl) {
         const audio = new Audio(audioUrl);
-        audio.playbackRate = 1.05;
+        audio.playbackRate = effectiveLang === 'ta' ? 1.0 : 1.05;
         currentAudioRef.current = audio;
 
         audio.onplay = () => setAudioState({ messageId, status: 'playing' });
@@ -314,7 +362,7 @@ export default function ChatInterface({
         };
         audio.onerror = () => {
           console.warn('Backend audio element playback error, falling back to Web Speech');
-          fallbackSpeechSynthesis(messageId, cleanText, effectiveLang);
+          fallbackSpeechSynthesis(messageId, spokenText, effectiveLang);
         };
 
         try {
@@ -322,16 +370,16 @@ export default function ChatInterface({
           return;
         } catch (playErr) {
           console.warn('Audio play failed, falling back to Web Speech:', playErr);
-          fallbackSpeechSynthesis(messageId, cleanText, effectiveLang);
+          fallbackSpeechSynthesis(messageId, spokenText, effectiveLang);
           return;
         }
       }
 
       // If backend TTS did not return audio, fall back directly to Web Speech Synthesis
-      fallbackSpeechSynthesis(messageId, cleanText, effectiveLang);
+      fallbackSpeechSynthesis(messageId, spokenText, effectiveLang);
     } catch (err) {
       console.warn('Backend TTS playback failed, using Web Speech fallback:', err);
-      fallbackSpeechSynthesis(messageId, cleanText, effectiveLang);
+      fallbackSpeechSynthesis(messageId, spokenText, effectiveLang);
     }
   };
 
