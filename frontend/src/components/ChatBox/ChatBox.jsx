@@ -93,10 +93,10 @@ export default function ChatBox() {
     text = text.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
     text = text.replace(/[📌⚠️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒📐📝📋🎯💰🔍🏛️•\-|~]/g, ' ');
     text = text.replace(/\s+/g, ' ').trim();
-    if (text.length > 180) {
-      const cut = text.slice(0, 180);
+    if (text.length > 2500) {
+      const cut = text.slice(0, 2500);
       const lastP = Math.max(cut.lastIndexOf('.'), cut.lastIndexOf('।'), cut.lastIndexOf('?'), cut.lastIndexOf('!'), cut.lastIndexOf(','));
-      if (lastP > 50) {
+      if (lastP > 100) {
         return cut.slice(0, lastP + 1).trim();
       }
       return cut.trim();

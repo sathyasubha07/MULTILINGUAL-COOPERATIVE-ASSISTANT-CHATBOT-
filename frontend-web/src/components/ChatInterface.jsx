@@ -106,11 +106,11 @@ export default function ChatInterface({
     text = text.replace(/[📌⚠️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒📐📝📋🎯💰🔍🏛️•\-|~]/g, ' ');
     text = text.replace(/\s+/g, ' ').trim();
     
-    // 4. Extract key concise sentences (max 180 chars) for ultra-fast, smooth speech
-    if (text.length > 180) {
-      const cut = text.slice(0, 180);
+    // 4. Read complete response fully (limit only if exceeding 2500 chars)
+    if (text.length > 2500) {
+      const cut = text.slice(0, 2500);
       const lastP = Math.max(cut.lastIndexOf('.'), cut.lastIndexOf('।'), cut.lastIndexOf('?'), cut.lastIndexOf('!'), cut.lastIndexOf(','));
-      if (lastP > 50) {
+      if (lastP > 100) {
         return cut.slice(0, lastP + 1).trim();
       }
       return cut.trim();

@@ -136,12 +136,12 @@ class PiperTTSBackend(TTSBackend):
 _TTS_AUDIO_CACHE = {}
 
 
-def clean_speech_text(text: str, max_chars: int = 220) -> str:
+def clean_speech_text(text: str, max_chars: int = 3000) -> str:
     """
     Sanitizes AI response text into natural, spoken voice sentences:
     - Strips markdown formatting, links, URLs, raw citations, tables, and emojis.
     - Eliminates unicode surrogates to prevent encoding errors.
-    - Limits length to the key summary/actionable sentences for ultra-fast (<200ms) audio playback.
+    - Reads the entire comprehensive response without truncating early.
     """
     if not text:
         return ""
@@ -164,10 +164,10 @@ def clean_speech_text(text: str, max_chars: int = 220) -> str:
     if len(cleaned) <= max_chars:
         return cleaned
 
-    # 4. Truncate at natural punctuation boundary within max_chars
+    # 4. Truncate at natural punctuation boundary only if exceedingly long (>3000 chars)
     cut = cleaned[:max_chars]
     last_p = max(cut.rfind('.'), cut.rfind('।'), cut.rfind('?'), cut.rfind('!'), cut.rfind(','), cut.rfind(';'))
-    if last_p > 60:
+    if last_p > 100:
         return cut[:last_p + 1].strip()
     return cut.strip()
 
@@ -214,9 +214,9 @@ class GttsFallbackBackend(TTSBackend):
                 error="Empty text — nothing to synthesize.",
             )
 
-        spoken_text = clean_speech_text(text, max_chars=220)
+        spoken_text = clean_speech_text(text, max_chars=3000)
         if not spoken_text:
-            spoken_text = text[:150].strip()
+            spoken_text = text[:500].strip()
 
         if not is_language_supported(language):
             language = "en"

@@ -32,7 +32,7 @@ async def handle_chat_query(payload: ChatRequest):
 @router.post("/tts")
 async def handle_tts(payload: TTSRequest):
     try:
-        clean_text = clean_speech_text(payload.text, max_chars=220)
+        clean_text = clean_speech_text(payload.text, max_chars=3000)
         target_lang = payload.language or "en"
         # Auto-detect Indic script to guarantee pure native Indic pronunciation
         if any('\u0B80' <= c <= '\u0BFF' for c in clean_text):
