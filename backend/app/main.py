@@ -37,6 +37,30 @@ app.include_router(pacs_router, prefix=f"{settings.API_V1_STR}/pacs", tags=["PAC
 app.include_router(law_router, prefix=f"{settings.API_V1_STR}/law", tags=["Cooperative Laws & MSCS"])
 app.include_router(financial_router, prefix=f"{settings.API_V1_STR}/financial", tags=["Financial Literacy & KCC"])
 
+import asyncio
+from ai_engine.language.text_to_speech import text_to_speech
+
+@app.on_event("startup")
+async def warm_up_tts_cache():
+    def _warmup():
+        common_phrases = [
+            ("Welcome to the Cooperative AI Assistant.", "en"),
+            ("Hello! How can I assist you with cooperative services and legal schemes today?", "en"),
+            ("സഹകരണ ബാങ്ക് സേവനങ്ങളിലേക്ക് സ്വാഗതം.", "ml"),
+            ("നമസ്കാരം! സഹകരണ സൊസൈറ്റി സേവനങ്ങളിൽ ഞാൻ നിങ്ങളെ എങ്ങനെ സഹായിക്കണം?", "ml"),
+            ("வணக்கம்! கூட்டுறவு சேவை மற்றும் சட்ட உதவி மையத்திற்கு வரவேற்கிறோம்.", "ta"),
+            ("விவசாயம், தொடக்க வேளாண்மைக் கூட்டுறவு கடன் சங்கம் மற்றும் அரசு திட்டங்கள் பற்றிய வழிகாட்டுதல் பெறலாம்.", "ta"),
+            ("सहकारी एआई सहायक में आपका स्वागत है।", "hi"),
+        ]
+        for phrase, lang in common_phrases:
+            try:
+                text_to_speech(phrase, lang, play_audio=False)
+            except Exception:
+                pass
+
+    # Run warmup in background thread to avoid blocking server boot
+    asyncio.get_event_loop().run_in_executor(None, _warmup)
+
 @app.get("/health")
 async def health_check():
     return {

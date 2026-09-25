@@ -92,7 +92,7 @@ export default function ChatBox() {
       const audioUrl = await fetchTTSAudio(text, detectedLang);
       if (audioUrl) {
         const audio = new Audio(audioUrl);
-        audio.playbackRate = 1.0;
+        audio.playbackRate = 1.05;
         currentAudioRef.current = audio;
 
         audio.onplay = () => setAudioState({ messageId, status: 'playing' });
@@ -146,7 +146,7 @@ export default function ChatBox() {
         te: ['telugu', 'తెలుగు', 'mohan', 'shruti'],
         kn: ['kannada', 'ಕನ್ನಡ', 'gagan', 'sapna'],
         ml: ['malayalam', 'മലയാളം', 'midhun', 'sobhana'],
-        mr: ['marathi', 'मராठी', 'aarohi', 'manohar'],
+        mr: ['marathi', 'मराठी', 'aarohi', 'manohar'],
         bn: ['bengali', 'বাংলা', 'bashkar', 'tanishaa'],
         gu: ['gujarati', 'ગુજરાતી', 'niranjan', 'dhwani'],
         pa: ['punjabi', 'ਪੰਜਾਬੀ', 'rajan'],
@@ -198,7 +198,7 @@ export default function ChatBox() {
       utterance.lang = targetLocale;
     }
 
-    utterance.rate = 0.95;
+    utterance.rate = 1.05;
     utterance.pitch = 1.0;
 
     utterance.onstart = () => setAudioState({ messageId, status: 'playing' });

@@ -80,11 +80,43 @@ class TranslationEngine:
                 "interest subvention": "ब्याज अनुदान",
                 "Primary Agricultural Credit Society": "प्राथमिक कृषि ऋण समिति (पैक्स)",
                 "Kisan Credit Card": "किसान क्रेडिट कार्ड (KCC)",
+            },
+            "ml": {
+                "**Overview:**": "**📌 സ്കീം അവലോകനം:**",
+                "**Overview & Guidance:**": "**📌 അവലോകനവും മാർഗ്ഗനിർദ്ദേശങ്ങളും:**",
+                "**Problem Analysis:**": "**🔍 പ്രശ്ന വിശകലനം:**",
+                "**Statutory Remedy & Farmer Rights:**": "**🛡️ നിയമപരമായ പരിഹാരവും കർഷക അവകാശങ്ങളും:**",
+                "**Mandatory Evidence Checklist:**": "**📁 ആവശ്യമായ രേഖകൾ:**",
+                "**Key Provisions / Guidelines:**": "**📜 പ്രധാന വ്യവസ്ഥകളും മാർഗ്ഗനിർദ്ദേശങ്ങളും:**",
+                "**3-Tier Escalation Ladder": "**🪜 3-തല അപ്പീൽ ക്രമം",
+                "**Competent Override Authority:**": "**🏛️ അപ്പീൽ അധികാര കേന്ദ്രം:**",
+                "**Applicable Statutory Laws:**": "**📜 ബാധകമായ നിയമപരമായ വകുപ്പുകൾ:**",
+                "**Penalties on Violator:**": "**⚠️ നിയമലംഘനത്തിനുള്ള ശിക്ഷാനടപടികൾ:**",
+                "**Ready-to-Print Legal Petition Draft:**": "**📝 ഔദ്യോഗിക പരാതി മാതൃക (Petition Draft):**",
+                "**Regulated Interest Rates & Subventions:**": "**📊 പലിശ നിരക്കുകളും സബ്സിഡികളും:**",
+                "**Standard Calculation Formulas:**": "**📐 അടിസ്ഥാന കണക്കുകൂട്ടൽ രീതികൾ:**",
+                "**Statutory Rights & Penalty Directives:**": "**📜 നിയമപരമായ അവകാശങ്ങളും നിർദ്ദേശങ്ങളും:**",
+                "**Biometric & Micro-ATM Safety Rules:**": "**🛡️ ബയോമെട്രിക് മൈക്രോ-എടിഎം സുരക്ഷാ നിയമങ്ങൾ:**",
+                "**Direct Benefit Transfer (DBT) Directives:**": "**🔍 നേരിട്ടുള്ള ആനുകൂല്യ കൈമാറ്റം (DBT):**",
+                "**Financial Benefit & Subsidy Slabs:**": "**💰 സാമ്പത്തിക സഹായവും സബ്സിഡി വിശദാംശങ്ങളും:**",
+                "**Scheme Overview:**": "**📌 സ്കീം അവലോകനം:**",
+                "**Mandatory Document Checklist:**": "**📋 ആവശ്യമായ രേഖകളുടെ ചെക്ക്‌ലിസ്റ്റ്:**",
+                "**Eligibility Criteria:**": "**🎯 യോഗ്യതാ മാനദണ്ഡങ്ങൾ:**",
+                "**Application Workflow:**": "**📝 അപേക്ഷാ സമർപ്പണ രീതി:**",
+                "Verified Legal Sources:": "സാക്ഷ്യപ്പെടുത്തിയ നിയമപരമായ ഉറവിടങ്ങൾ:",
+                "Verified Official Sources:": "സാക്ഷ്യപ്പെടുത്തിയ ഔദ്യോഗിക ഉറവിടങ്ങൾ:",
+                "Verified Sources:": "സാക്ഷ്യപ്പെടുത്തിയ സർക്കാർ ഉറവിടങ്ങൾ:",
+                "Verified Financial Sources:": "സാക്ഷ്യപ്പെടുത്തിയ സാമ്പത്തിക ഉറവിടങ്ങൾ:",
+                "cooperative society": "സഹകരണ സംഘം (PACS)",
+                "crop insurance": "വിള ഇൻഷുറൻസ്",
+                "interest subvention": "പലിശ ഇളവ്",
+                "Primary Agricultural Credit Society": "പ്രാഥമിക കാർഷിക വായ്പാ സഹകരണ സംഘം (PACS)",
+                "Kisan Credit Card": "കിസാൻ ക്രെഡിറ്റ് കാർഡ് (KCC)",
             }
         }
 
     def _translate_segment(self, text: str, target_lang: str) -> str:
-        """Translates a clean single text segment preserving numbers and punctuation."""
+        """Translates a clean text segment preserving numbers and punctuation."""
         if not text or not text.strip():
             return text
 
@@ -97,7 +129,7 @@ class TranslationEngine:
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
             with urllib.request.urlopen(req, timeout=4) as response:
                 raw_data = json.loads(response.read().decode("utf-8"))
-                translated = "".join([part[0] for part in raw_data[0] if part[0]])
+                translated = "".join([part[0] for part in raw_data[0] if part and part[0]])
                 if translated:
                     self._cache[cache_key] = translated
                     return translated
@@ -114,63 +146,73 @@ class TranslationEngine:
         if not text or source_lang == target_lang or target_lang == "en":
             return text
 
+        full_cache_key = f"full:{target_lang}:{hash(text)}"
+        if full_cache_key in self._cache:
+            return self._cache[full_cache_key]
+
         # 1. Apply high-priority glossary replacements
         processed = text
         if target_lang in self.glossary:
             for en_term, target_term in self.glossary[target_lang].items():
                 processed = processed.replace(en_term, target_term)
 
-        # 2. Translate line-by-line or paragraph-by-paragraph to preserve Markdown layout
+        # 2. Check if the text is already largely in Indic script
+        has_indic = any('\u0900' <= char <= '\u0DFF' or '\u0B80' <= char <= '\u0BFF' for char in processed)
+        english_words = re.findall(r'[a-zA-Z]{4,}', processed)
+        
+        # If already in the target Indic language, return immediately
+        if has_indic and len(english_words) < 5:
+            self._cache[full_cache_key] = processed
+            return processed
+
+        # 3. Batch Translate non-citation paragraphs for speed (<300ms)
         lines = processed.split("\n")
         translated_lines: List[str] = []
+        batch_chunks = []
+        batch_indices = []
 
-        for line in lines:
+        for idx, line in enumerate(lines):
             trimmed = line.strip()
             if not trimmed:
                 translated_lines.append(line)
                 continue
 
-            # Preserve code blocks and raw citations without translating them
+            # Preserve code blocks, URLs, and citations untouched
             if trimmed.startswith("```") or trimmed.startswith("🏛️") or trimmed.startswith("📜 Applicable") or "http://" in trimmed or "https://" in trimmed:
                 translated_lines.append(line)
                 continue
 
-            # Check if line already has Indic characters (Tamil, Devanagari, Telugu, Kannada, etc.)
-            has_indic = any('\u0900' <= char <= '\u0DFF' or '\u0B80' <= char <= '\u0BFF' for char in line)
-            
-            # If line is primarily in English, translate the text content
-            if not has_indic or len(re.findall(r'[a-zA-Z]{4,}', line)) >= 3:
-                # Handle bullet points
-                prefix = ""
-                content = line
-                if line.startswith("• "):
-                    prefix = "• "
-                    content = line[2:]
-                elif line.startswith("- "):
-                    prefix = "- "
-                    content = line[2:]
-                elif line.startswith("  - "):
-                    prefix = "  - "
-                    content = line[4:]
-                elif line.startswith("  • "):
-                    prefix = "  • "
-                    content = line[4:]
+            translated_lines.append("")  # Placeholder
+            batch_indices.append((idx, len(translated_lines) - 1, line))
 
-                # Handle bold headers like **Overview:** or **Benchmark Lending Rate:**
-                bold_match = re.match(r'^(\*\*.*?\*\*:\s*)(.*)$', content)
-                if bold_match:
-                    header_part = bold_match.group(1)
-                    body_part = bold_match.group(2)
-                    
-                    # Translate header and body
-                    tr_header = self._translate_segment(header_part.replace("**", "").replace(":", ""), target_lang)
-                    tr_body = self._translate_segment(body_part, target_lang) if body_part.strip() else ""
-                    
-                    translated_lines.append(f"{prefix}**{tr_header}:** {tr_body}".strip())
-                else:
-                    tr_content = self._translate_segment(content, target_lang)
-                    translated_lines.append(f"{prefix}{tr_content}")
+        # Translate in batches
+        for orig_idx, out_idx, raw_line in batch_indices:
+            prefix = ""
+            content = raw_line
+            if raw_line.startswith("• "):
+                prefix = "• "
+                content = raw_line[2:]
+            elif raw_line.startswith("- "):
+                prefix = "- "
+                content = raw_line[2:]
+            elif raw_line.startswith("  - "):
+                prefix = "  - "
+                content = raw_line[4:]
+            elif raw_line.startswith("  • "):
+                prefix = "  • "
+                content = raw_line[4:]
+
+            bold_match = re.match(r'^(\*\*.*?\*\*:\s*)(.*)$', content)
+            if bold_match:
+                header_part = bold_match.group(1)
+                body_part = bold_match.group(2)
+                tr_header = self._translate_segment(header_part.replace("**", "").replace(":", ""), target_lang)
+                tr_body = self._translate_segment(body_part, target_lang) if body_part.strip() else ""
+                translated_lines[out_idx] = f"{prefix}**{tr_header}:** {tr_body}".strip()
             else:
-                translated_lines.append(line)
+                tr_content = self._translate_segment(content, target_lang)
+                translated_lines[out_idx] = f"{prefix}{tr_content}"
 
-        return "\n".join(translated_lines)
+        result = "\n".join(translated_lines)
+        self._cache[full_cache_key] = result
+        return result

@@ -236,7 +236,7 @@ export default function ChatInterface({
       utterance.lang = targetLocale;
     }
 
-    utterance.rate = 0.95;
+    utterance.rate = 1.05;
     utterance.pitch = 1.0;
 
     utterance.onstart = () => setAudioState({ messageId, status: 'playing' });
@@ -299,7 +299,7 @@ export default function ChatInterface({
       const audioUrl = await fetchTTSAudio(cleanText, effectiveLang);
       if (audioUrl) {
         const audio = new Audio(audioUrl);
-        audio.playbackRate = 1.0;
+        audio.playbackRate = 1.05;
         currentAudioRef.current = audio;
 
         audio.onplay = () => setAudioState({ messageId, status: 'playing' });
