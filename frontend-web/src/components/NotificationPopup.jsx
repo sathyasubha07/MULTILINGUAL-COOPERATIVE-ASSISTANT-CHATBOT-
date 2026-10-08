@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, X, Sparkles, ArrowRight, Zap, AlertTriangle } from 'lucide-react';
+import { Bell, X, Sparkles, ArrowRight, Zap, AlertTriangle, Flame } from 'lucide-react';
 
 export default function NotificationPopup({ 
   notification, 
   onClose, 
   onAction,
-  autoCloseMs = 7000 
+  autoCloseMs = 8000 
 }) {
   const [visible, setVisible] = useState(false);
 
@@ -22,58 +22,52 @@ export default function NotificationPopup({
 
   if (!notification) return null;
 
-  const isUrgent = notification.priority === 'High';
-  const isPersonal = notification.badge === 'Personalized' || notification.type === 'New Eligibility';
-
   return (
     <div
       style={{
         position: 'fixed',
         bottom: '24px',
         right: '24px',
-        zIndex: 9999,
-        maxWidth: '420px',
+        zIndex: 99999,
+        maxWidth: '440px',
         width: 'calc(100vw - 48px)',
         background: 'var(--header-bg)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderRadius: '1rem',
-        border: isPersonal 
-          ? '1.5px solid #10b981' 
-          : isUrgent 
-            ? '1.5px solid #ef4444' 
-            : '1.5px solid #2563eb',
-        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.25)',
-        padding: '1.15rem',
-        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-        transform: visible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        borderRadius: '1.1rem',
+        border: '1.5px solid rgba(239, 68, 68, 0.65)',
+        boxShadow: '0 16px 40px rgba(239, 68, 68, 0.22), 0 8px 24px rgba(0, 0, 0, 0.35)',
+        padding: '1.15rem 1.25rem',
+        transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+        transform: visible ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.94)',
         opacity: visible ? 1 : 0,
         pointerEvents: visible ? 'all' : 'none'
       }}
     >
       {/* Header bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
           <div style={{
-            width: '28px',
-            height: '28px',
+            width: '30px',
+            height: '30px',
             borderRadius: '50%',
-            background: isUrgent ? '#ef4444' : isPersonal ? '#10b981' : '#2563eb',
+            background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff'
+            color: '#fff',
+            boxShadow: '0 2px 10px rgba(239, 68, 68, 0.45)'
           }}>
-            {isPersonal ? <Sparkles size={15} /> : isUrgent ? <AlertTriangle size={15} /> : <Bell size={15} />}
+            <Bell size={16} />
           </div>
           <span style={{
             fontSize: '0.78rem',
-            fontWeight: '700',
+            fontWeight: '800',
             textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            color: isUrgent ? '#ef4444' : isPersonal ? '#10b981' : '#2563eb'
+            letterSpacing: '0.05em',
+            color: '#ef4444'
           }}>
-            {notification.badge || 'Scheme Alert'}
+            🔴 {notification.badge || 'Scheme Notification'}
           </span>
         </div>
 
@@ -82,13 +76,14 @@ export default function NotificationPopup({
             setVisible(false);
             setTimeout(onClose, 300);
           }}
+          aria-label="Dismiss notification"
           style={{
-            background: 'transparent',
+            background: 'rgba(255, 255, 255, 0.06)',
             border: 'none',
             color: 'var(--text-muted)',
             cursor: 'pointer',
-            padding: '0.2rem',
-            borderRadius: '0.3rem',
+            padding: '0.3rem',
+            borderRadius: '0.4rem',
             display: 'flex'
           }}
         >
@@ -98,19 +93,19 @@ export default function NotificationPopup({
 
       {/* Title & snippet */}
       <h4 style={{
-        fontSize: '0.92rem',
-        fontWeight: '700',
+        fontSize: '0.96rem',
+        fontWeight: '800',
         color: 'var(--text-primary)',
-        margin: '0 0 0.3rem 0',
-        lineHeight: '1.3'
+        margin: '0 0 0.35rem 0',
+        lineHeight: '1.35'
       }}>
         {notification.title}
       </h4>
       <p style={{
-        fontSize: '0.82rem',
+        fontSize: '0.84rem',
         color: 'var(--text-secondary)',
-        lineHeight: '1.4',
-        margin: '0 0 0.75rem 0'
+        lineHeight: '1.45',
+        margin: '0 0 0.85rem 0'
       }}>
         {notification.message}
       </p>
@@ -123,15 +118,19 @@ export default function NotificationPopup({
             onAction(notification.action_query || `Tell me more about ${notification.title}`);
             setTimeout(onClose, 300);
           }}
-          className="btn-primary"
           style={{
-            padding: '0.4rem 0.85rem',
-            fontSize: '0.8rem',
-            fontWeight: '600',
-            borderRadius: '0.5rem',
-            display: 'flex',
+            padding: '0.45rem 0.95rem',
+            fontSize: '0.82rem',
+            fontWeight: '700',
+            borderRadius: '0.6rem',
+            display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.35rem'
+            gap: '0.35rem',
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            color: '#ffffff',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 3px 12px rgba(239, 68, 68, 0.4)'
           }}
         >
           <span>View / Ask AI</span>

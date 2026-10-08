@@ -121,38 +121,46 @@ export default function Header({
           <button
             onClick={onOpenNotifications}
             className="btn-secondary"
-            title="Scheme Updates & Live Notifications"
+            title="Scheme Updates & Notifications"
             style={{
-              padding: '0.45rem 0.75rem',
+              padding: '0.45rem 0.85rem',
               fontSize: '0.82rem',
+              fontWeight: '700',
               position: 'relative',
-              borderColor: unreadNotifsCount > 0 ? 'rgba(239, 68, 68, 0.4)' : 'var(--bg-card-border)',
-              background: unreadNotifsCount > 0 ? 'rgba(239, 68, 68, 0.08)' : 'var(--bg-card)',
+              borderColor: unreadNotifsCount > 0 ? 'rgba(239, 68, 68, 0.65)' : 'var(--bg-card-border)',
+              background: unreadNotifsCount > 0 ? 'rgba(239, 68, 68, 0.12)' : 'var(--bg-card)',
               color: unreadNotifsCount > 0 ? '#ef4444' : 'var(--text-primary)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem',
+              gap: '0.4rem',
+              boxShadow: unreadNotifsCount > 0 ? '0 2px 10px rgba(239, 68, 68, 0.25)' : 'none',
+              transition: 'all 0.2s ease'
             }}
           >
-            <Bell size={16} color={unreadNotifsCount > 0 ? '#ef4444' : '#2563eb'} />
-            <span className="hide-mobile">Alerts</span>
+            <Bell size={16} color={unreadNotifsCount > 0 ? '#ef4444' : '#ef4444'} className={unreadNotifsCount > 0 ? 'animate-bounce' : ''} />
+            <span className="hide-mobile">Notifications</span>
             {unreadNotifsCount > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '-5px',
-                right: '-5px',
-                background: '#ef4444',
-                color: '#ffffff',
-                fontSize: '0.68rem',
-                fontWeight: '700',
-                width: '18px',
-                height: '18px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)'
-              }}>
+              <span 
+                className="red-pulse-badge"
+                style={{
+                  position: 'absolute',
+                  top: '-6px',
+                  right: '-6px',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.68rem',
+                  fontWeight: '800',
+                  minWidth: '20px',
+                  height: '20px',
+                  padding: '0 4px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid var(--header-bg)',
+                  boxShadow: '0 3px 8px rgba(239, 68, 68, 0.6)'
+                }}
+              >
                 {unreadNotifsCount}
               </span>
             )}
