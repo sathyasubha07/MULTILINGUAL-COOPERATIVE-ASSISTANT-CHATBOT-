@@ -15,40 +15,86 @@ export default function NotificationModal({
   user
 }) {
   const t = TRANSLATIONS[langCode] || TRANSLATIONS.en;
-  const [filter, setFilter] = useState('all'); // all, updates, eligibility, urgent
+  const [filter, setFilter] = useState('all'); // all, urgent, eligibility, updates
 
   const filteredNotifs = notifications.filter((n) => {
-    if (filter === 'urgent') return n.priority === 'High';
-    if (filter === 'eligibility') return n.type === 'New Eligibility' || n.badge === 'Personalized';
-    if (filter === 'updates') return n.badge !== 'Personalized';
+    if (filter === 'urgent') return n.priority === 'High' || n.category === 'Emergency';
+    if (filter === 'eligibility') return n.type === 'New Eligibility' || n.badge === 'Personalized' || n.type === 'Credit Opportunity';
+    if (filter === 'updates') return n.badge !== 'Personalized' && n.type !== 'New Eligibility';
     return true;
   });
 
-  const getBadgeStyle = (item) => {
-    const isUrgent = item.priority === 'High';
-    const isPersonal = item.badge === 'Personalized' || item.type === 'New Eligibility';
-    
+  // Determines card presentation based on emergency / opportunity type:
+  // - Emergency / Urgent Deadlines -> Warm Golden Yellow / Amber
+  // - Newly Unlocked / Subsidy Match -> Fresh Emerald Green
+  // - Major Policy Updates -> Professional Royal Blue
+  const getNotificationTheme = (item) => {
+    const isUrgent = item.priority === 'High' || item.category === 'Emergency' || item.title?.toLowerCase().includes('window') || item.title?.toLowerCase().includes('urgent');
+    const isUnlockedOrBenefit = item.type === 'New Eligibility' || item.badge === 'Personalized' || item.type === 'Credit Opportunity' || item.title?.toLowerCase().includes('unlocked') || item.title?.toLowerCase().includes('subsidy');
+
     if (isUrgent) {
       return {
-        bg: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
-        text: '#ffffff',
-        border: '1px solid #dc2626',
-        label: '🚨 URGENT NOTICE'
+        type: 'urgent',
+        badgeBg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        badgeBorder: '1px solid #d97706',
+        badgeText: '#ffffff',
+        badgeLabel: '⏳ ACTION REQUIRED / DEADLINE',
+        cardBg: 'linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.02) 100%)',
+        cardBorder: '1px solid rgba(245, 158, 11, 0.45)',
+        hoverBorder: 'rgba(245, 158, 11, 0.8)',
+        btnBg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        btnShadow: '0 3px 12px rgba(245, 158, 11, 0.35)',
+        impactBg: 'rgba(245, 158, 11, 0.1)',
+        impactBorder: '1px solid rgba(245, 158, 11, 0.35)',
+        impactText: '#d97706',
+        impactIconColor: '#f59e0b',
+        codeBg: 'rgba(245, 158, 11, 0.15)',
+        codeText: '#d97706',
+        codeBorder: '1px solid rgba(245, 158, 11, 0.3)'
       };
     }
-    if (isPersonal) {
+
+    if (isUnlockedOrBenefit) {
       return {
-        bg: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
-        text: '#ffffff',
-        border: '1px solid #e11d48',
-        label: '✨ NEWLY UNLOCKED'
+        type: 'unlocked',
+        badgeBg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        badgeBorder: '1px solid #059669',
+        badgeText: '#ffffff',
+        badgeLabel: '✨ NEWLY UNLOCKED SCHEME',
+        cardBg: 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%)',
+        cardBorder: '1px solid rgba(16, 185, 129, 0.45)',
+        hoverBorder: 'rgba(16, 185, 129, 0.8)',
+        btnBg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        btnShadow: '0 3px 12px rgba(16, 185, 129, 0.35)',
+        impactBg: 'rgba(16, 185, 129, 0.1)',
+        impactBorder: '1px solid rgba(16, 185, 129, 0.35)',
+        impactText: '#10b981',
+        impactIconColor: '#10b981',
+        codeBg: 'rgba(16, 185, 129, 0.15)',
+        codeText: '#10b981',
+        codeBorder: '1px solid rgba(16, 185, 129, 0.3)'
       };
     }
+
+    // Standard Scheme Update
     return {
-      bg: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-      text: '#ffffff',
-      border: '1px solid #ef4444',
-      label: item.badge || '📢 SCHEME UPDATE'
+      type: 'update',
+      badgeBg: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+      badgeBorder: '1px solid #2563eb',
+      badgeText: '#ffffff',
+      badgeLabel: '📢 SCHEME UPDATE',
+      cardBg: 'linear-gradient(180deg, rgba(37, 99, 235, 0.06) 0%, rgba(37, 99, 235, 0.01) 100%)',
+      cardBorder: '1px solid rgba(37, 99, 235, 0.35)',
+      hoverBorder: 'rgba(37, 99, 235, 0.75)',
+      btnBg: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+      btnShadow: '0 3px 12px rgba(37, 99, 235, 0.35)',
+      impactBg: 'rgba(37, 99, 235, 0.08)',
+      impactBorder: '1px solid rgba(37, 99, 235, 0.25)',
+      impactText: '#2563eb',
+      impactIconColor: '#2563eb',
+      codeBg: 'rgba(37, 99, 235, 0.12)',
+      codeText: '#2563eb',
+      codeBorder: '1px solid rgba(37, 99, 235, 0.25)'
     };
   };
 
@@ -64,21 +110,21 @@ export default function NotificationModal({
           display: 'flex', 
           flexDirection: 'column',
           borderRadius: '1.25rem',
-          border: '1px solid rgba(239, 68, 68, 0.35)',
-          boxShadow: '0 20px 60px rgba(239, 68, 68, 0.12), 0 10px 30px rgba(0, 0, 0, 0.35)',
+          border: '1px solid var(--bg-card-border)',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.45)',
           background: 'var(--bg-card)',
           overflow: 'hidden',
           animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
       >
-        {/* Sticky Modal Header */}
+        {/* Sticky Modal Header - ONLY Name & Bell in Red */}
         <div style={{
           padding: '1.25rem 1.5rem',
-          borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+          borderBottom: '1px solid var(--bg-card-border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: 'linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 100%)',
+          background: 'var(--header-bg)',
           flexShrink: 0
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
@@ -96,7 +142,7 @@ export default function NotificationModal({
               position: 'relative',
               flexShrink: 0
             }}>
-              <Bell size={22} className="animate-pulse" />
+              <Bell size={22} />
               <span style={{
                 position: 'absolute',
                 top: '-3px',
@@ -110,9 +156,9 @@ export default function NotificationModal({
             </div>
 
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <h2 style={{ fontSize: '1.22rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
-                  Scheme Notifications & Updates
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+                <h2 style={{ fontSize: '1.22rem', fontWeight: '800', color: '#ef4444', margin: 0, letterSpacing: '-0.01em' }}>
+                  Notifications & Scheme Updates
                 </h2>
                 <span style={{
                   fontSize: '0.68rem',
@@ -121,7 +167,7 @@ export default function NotificationModal({
                   letterSpacing: '0.05em',
                   padding: '0.18rem 0.5rem',
                   borderRadius: '1rem',
-                  background: 'rgba(239, 68, 68, 0.15)',
+                  background: 'rgba(239, 68, 68, 0.12)',
                   color: '#ef4444',
                   border: '1px solid rgba(239, 68, 68, 0.3)'
                 }}>
@@ -129,7 +175,7 @@ export default function NotificationModal({
                 </span>
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>
-                Official government notices, subsidy revisions & dynamic eligibility unlocks
+                Official announcements, yellow action deadlines & green eligible subsidies
               </p>
             </div>
           </div>
@@ -162,7 +208,7 @@ export default function NotificationModal({
           </button>
         </div>
 
-        {/* Sticky Filter Bar */}
+        {/* Sticky Professional Filter Bar */}
         <div style={{
           padding: '0.75rem 1.5rem',
           display: 'flex',
@@ -175,9 +221,9 @@ export default function NotificationModal({
         }}>
           {[
             { id: 'all', label: 'All Notifications' },
-            { id: 'urgent', label: '🚨 Action & Deadlines' },
-            { id: 'eligibility', label: '✨ Eligible For You' },
-            { id: 'updates', label: '📢 Scheme Updates' }
+            { id: 'urgent', label: '🟡 Urgent & Deadlines' },
+            { id: 'eligibility', label: '🟢 Eligible For You' },
+            { id: 'updates', label: '🔵 Scheme Updates' }
           ].map((tab) => {
             const isActive = filter === tab.id;
             return (
@@ -187,14 +233,14 @@ export default function NotificationModal({
                 style={{
                   padding: '0.42rem 0.95rem',
                   borderRadius: '2rem',
-                  border: isActive ? '1px solid #ef4444' : '1px solid var(--bg-card-border)',
-                  background: isActive ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'var(--bg-card)',
+                  border: isActive ? '1px solid var(--primary-color, #2563eb)' : '1px solid var(--bg-card-border)',
+                  background: isActive ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : 'var(--bg-card)',
                   color: isActive ? '#ffffff' : 'var(--text-primary)',
                   fontSize: '0.8rem',
                   fontWeight: isActive ? '700' : '500',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
-                  boxShadow: isActive ? '0 3px 10px rgba(239, 68, 68, 0.35)' : 'none',
+                  boxShadow: isActive ? '0 3px 10px rgba(37, 99, 235, 0.35)' : 'none',
                   transition: 'all 0.2s ease',
                   flexShrink: 0
                 }}
@@ -205,7 +251,7 @@ export default function NotificationModal({
           })}
         </div>
 
-        {/* Scrollable Notification List */}
+        {/* Scrollable Notification List with Green / Yellow Semantic Cards */}
         <div 
           className="notification-scroll-container"
           style={{
@@ -225,12 +271,12 @@ export default function NotificationModal({
                 width: '60px',
                 height: '60px',
                 borderRadius: '50%',
-                background: 'rgba(239, 68, 68, 0.1)',
+                background: 'rgba(16, 185, 129, 0.1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 1rem',
-                color: '#ef4444'
+                color: '#10b981'
               }}>
                 <CheckCircle2 size={32} />
               </div>
@@ -243,9 +289,7 @@ export default function NotificationModal({
             </div>
           ) : (
             filteredNotifs.map((item) => {
-              const isUrgent = item.priority === 'High';
-              const isPersonal = item.badge === 'Personalized' || item.type === 'New Eligibility';
-              const badgeStyle = getBadgeStyle(item);
+              const theme = getNotificationTheme(item);
 
               return (
                 <div
@@ -254,19 +298,9 @@ export default function NotificationModal({
                   style={{
                     padding: '1.15rem 1.25rem',
                     borderRadius: '1rem',
-                    background: isUrgent 
-                      ? 'linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 100%)'
-                      : isPersonal
-                        ? 'linear-gradient(180deg, rgba(244, 63, 94, 0.06) 0%, rgba(244, 63, 94, 0.02) 100%)'
-                        : 'var(--bg-card)',
-                    border: isUrgent 
-                      ? '1px solid rgba(239, 68, 68, 0.45)' 
-                      : isPersonal
-                        ? '1px solid rgba(244, 63, 94, 0.4)'
-                        : '1px solid rgba(239, 68, 68, 0.25)',
-                    boxShadow: isUrgent 
-                      ? '0 6px 20px rgba(239, 68, 68, 0.12)' 
-                      : '0 4px 14px rgba(0, 0, 0, 0.06)',
+                    background: theme.cardBg,
+                    border: theme.cardBorder,
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
                     position: 'relative'
                   }}
@@ -280,15 +314,15 @@ export default function NotificationModal({
                         letterSpacing: '0.04em',
                         padding: '0.22rem 0.65rem',
                         borderRadius: '2rem',
-                        background: badgeStyle.bg,
-                        color: badgeStyle.text,
-                        border: badgeStyle.border,
-                        boxShadow: '0 2px 8px rgba(239, 68, 68, 0.25)',
+                        background: theme.badgeBg,
+                        color: theme.badgeText,
+                        border: theme.badgeBorder,
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '0.3rem'
                       }}>
-                        {badgeStyle.label}
+                        {theme.badgeLabel}
                       </span>
 
                       {item.scheme_code && (
@@ -297,9 +331,9 @@ export default function NotificationModal({
                           fontWeight: '700',
                           padding: '0.2rem 0.55rem',
                           borderRadius: '0.4rem',
-                          background: 'rgba(239, 68, 68, 0.1)',
-                          color: '#ef4444',
-                          border: '1px solid rgba(239, 68, 68, 0.2)'
+                          background: theme.codeBg,
+                          color: theme.codeText,
+                          border: theme.codeBorder
                         }}>
                           {item.scheme_code}
                         </span>
@@ -356,14 +390,14 @@ export default function NotificationModal({
                       gap: '0.45rem',
                       padding: '0.55rem 0.85rem',
                       borderRadius: '0.6rem',
-                      background: 'rgba(239, 68, 68, 0.08)',
-                      border: '1px solid rgba(239, 68, 68, 0.25)',
-                      color: '#ef4444',
+                      background: theme.impactBg,
+                      border: theme.impactBorder,
+                      color: theme.impactText,
                       fontSize: '0.8rem',
                       fontWeight: '700',
                       marginBottom: '0.9rem'
                     }}>
-                      <Flame size={15} color="#ef4444" style={{ flexShrink: 0 }} />
+                      <Zap size={15} color={theme.impactIconColor} style={{ flexShrink: 0 }} />
                       <span>Benefit Impact: {item.impact}</span>
                     </div>
                   )}
@@ -384,20 +418,18 @@ export default function NotificationModal({
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '0.4rem',
-                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        background: theme.btnBg,
                         color: '#ffffff',
                         border: 'none',
                         cursor: 'pointer',
-                        boxShadow: '0 3px 12px rgba(239, 68, 68, 0.35)',
+                        boxShadow: theme.btnShadow,
                         transition: 'transform 0.15s ease, box-shadow 0.15s ease'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = '0 5px 16px rgba(239, 68, 68, 0.45)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 3px 12px rgba(239, 68, 68, 0.35)';
                       }}
                     >
                       <MessageSquare size={14} />
@@ -419,17 +451,17 @@ export default function NotificationModal({
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '0.4rem',
-                          background: 'rgba(239, 68, 68, 0.08)',
-                          color: '#ef4444',
-                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          color: 'var(--text-primary)',
+                          border: '1px solid var(--bg-card-border)',
                           cursor: 'pointer',
                           transition: 'all 0.15s ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.16)';
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
                         }}
                       >
                         <ExternalLink size={14} />
@@ -456,7 +488,7 @@ export default function NotificationModal({
           flexShrink: 0
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            <Sparkles size={16} color="#ef4444" />
+            <Sparkles size={16} color="#10b981" />
             <span>Update your farm details anytime to trigger new scheme matches.</span>
           </div>
 
@@ -468,7 +500,7 @@ export default function NotificationModal({
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#ef4444',
+              color: '#10b981',
               fontWeight: '700',
               fontSize: '0.84rem',
               cursor: 'pointer',
