@@ -1,6 +1,6 @@
 """
 End-to-End Multilingual RAG Pipeline coordinating Domain Routing, Multi-Domain Sub-Model Execution,
-Post-LLM Database Cross-Verification for every sub-model, and Unified Fusion Synthesis.
+Gemini Multi-Agent Persona Reasoning, Post-LLM Database Cross-Verification, and Unified Fusion Synthesis.
 """
 from typing import Dict, Any, List
 from ai_engine.orchestration.domain_router import DomainRouter
@@ -40,47 +40,78 @@ class RAGPipeline:
         primary_domain = routing_result["domain"]
         active_domains = routing_result.get("active_domains", [primary_domain])
         all_docs = routing_result["retrieved_context"]
-        citations = routing_result["citations"]
+        citations = list(routing_result.get("citations", []))
         extracted_slots = routing_result.get("extracted_slots", {})
         authorities = routing_result.get("authorities", [])
 
         domain_contexts: Dict[str, List[Dict[str, Any]]] = {}
         domain_answers: Dict[str, str] = {}
 
-        # 2. Execute each sub-model with specialized engines or domain RAG
+        # 2. Execute each sub-model with specialized engines & Gemini Persona Reasoning
         for dom in active_domains:
             if dom == "farmer_scheme":
                 # Specialized Farmer Scheme Sub-Model Execution
                 scheme_res = self.farmer_scheme_submodel.generate_scheme_guidance(query, language)
-                domain_answers[dom] = scheme_res["guidance_text"]
                 domain_contexts[dom] = [scheme_res["primary_scheme"]]
-                citations.extend(scheme_res["citations"])
+                citations.extend(scheme_res.get("citations", []))
+                
+                # Check if Gemini reasoning is enabled for deep multilingual synthesis
+                if self.reasoner.gemini_key:
+                    gemini_ans = self.reasoner.generate_response(query, domain_contexts[dom], dom, language)
+                    domain_answers[dom] = gemini_ans if gemini_ans else scheme_res["guidance_text"]
+                else:
+                    domain_answers[dom] = scheme_res["guidance_text"]
+
             elif dom == "grievance":
                 # Specialized Grievance Redressal Sub-Model Execution
                 grv_res = self.grievance_submodel.generate_grievance_guidance(query, language)
-                domain_answers[dom] = grv_res["guidance_text"]
                 domain_contexts[dom] = [grv_res["primary_grievance"]]
                 citations.extend(grv_res["primary_grievance"].get("legal_sections", []))
+
+                if self.reasoner.gemini_key:
+                    gemini_ans = self.reasoner.generate_response(query, domain_contexts[dom], dom, language)
+                    domain_answers[dom] = gemini_ans if gemini_ans else grv_res["guidance_text"]
+                else:
+                    domain_answers[dom] = grv_res["guidance_text"]
+
             elif dom == "pacs_pmfby":
                 # Specialized PACS + PMFBY Sub-Model Execution
                 pacs_res = self.pacs_pmfby_submodel.generate_guidance(query, language)
-                domain_answers[dom] = pacs_res["guidance_text"]
                 domain_contexts[dom] = [pacs_res["primary_topic"]]
-                citations.extend(pacs_res["citations"])
+                citations.extend(pacs_res.get("citations", []))
+
+                if self.reasoner.gemini_key:
+                    gemini_ans = self.reasoner.generate_response(query, domain_contexts[dom], dom, language)
+                    domain_answers[dom] = gemini_ans if gemini_ans else pacs_res["guidance_text"]
+                else:
+                    domain_answers[dom] = pacs_res["guidance_text"]
+
             elif dom == "cooperative_law":
                 # Specialized Cooperative Law Sub-Model Execution
                 law_res = self.cooperative_law_submodel.generate_guidance(query, language)
-                domain_answers[dom] = law_res["guidance_text"]
                 domain_contexts[dom] = [law_res["primary_law"]]
-                citations.extend(law_res["citations"])
+                citations.extend(law_res.get("citations", []))
+
+                if self.reasoner.gemini_key:
+                    gemini_ans = self.reasoner.generate_response(query, domain_contexts[dom], dom, language)
+                    domain_answers[dom] = gemini_ans if gemini_ans else law_res["guidance_text"]
+                else:
+                    domain_answers[dom] = law_res["guidance_text"]
+
             elif dom == "financial_literacy":
                 # Specialized Financial Literacy Sub-Model Execution
                 fin_res = self.financial_literacy_submodel.generate_guidance(query, language)
-                domain_answers[dom] = fin_res["guidance_text"]
                 domain_contexts[dom] = [fin_res["primary_topic"]]
-                citations.extend(fin_res["citations"])
+                citations.extend(fin_res.get("citations", []))
+
+                if self.reasoner.gemini_key:
+                    gemini_ans = self.reasoner.generate_response(query, domain_contexts[dom], dom, language)
+                    domain_answers[dom] = gemini_ans if gemini_ans else fin_res["guidance_text"]
+                else:
+                    domain_answers[dom] = fin_res["guidance_text"]
+
             else:
-                # General / Domain RAG Reasoner
+                # General / Multi-Domain RAG Reasoner
                 dom_docs = [d for d in all_docs if d.get("domain") == dom or d.get("domain") in dom]
                 if not dom_docs:
                     dom_docs = all_docs[:2]
