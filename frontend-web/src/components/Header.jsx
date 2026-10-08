@@ -1,11 +1,15 @@
 import React from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../translations';
-import { Bot, Sun, Moon, HelpCircle, MapPin, Globe, Type, RotateCcw, User, UserCheck, PanelLeft, Plus } from 'lucide-react';
+import { 
+  Bot, Sun, Moon, HelpCircle, MapPin, Globe, Type, RotateCcw, 
+  User, UserCheck, PanelLeft, Plus, Bell 
+} from 'lucide-react';
 
 /**
  * Modern Header & Navigation Bar
  * Features app branding, sidebar toggle, personal account profile button,
- * dark mode toggle, text-size toggle, language badge, FAQ & Locator shortcuts.
+ * live scheme notifications bell with unread badge, dark mode toggle, text-size toggle,
+ * language badge, FAQ & Locator shortcuts.
  */
 export default function Header({
   langCode,
@@ -17,9 +21,10 @@ export default function Header({
   onOpenFaq,
   onOpenLocator,
   onOpenAccount,
+  onOpenNotifications,
+  unreadNotifsCount = 0,
   user,
   onResetChat,
-  hasMessages,
   sidebarOpen,
   onToggleSidebar,
 }) {
@@ -112,6 +117,47 @@ export default function Header({
           gap: '0.5rem',
           flexWrap: 'wrap',
         }}>
+          {/* Notifications Bell Trigger */}
+          <button
+            onClick={onOpenNotifications}
+            className="btn-secondary"
+            title="Scheme Updates & Live Notifications"
+            style={{
+              padding: '0.45rem 0.75rem',
+              fontSize: '0.82rem',
+              position: 'relative',
+              borderColor: unreadNotifsCount > 0 ? 'rgba(239, 68, 68, 0.4)' : 'var(--bg-card-border)',
+              background: unreadNotifsCount > 0 ? 'rgba(239, 68, 68, 0.08)' : 'var(--bg-card)',
+              color: unreadNotifsCount > 0 ? '#ef4444' : 'var(--text-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+            }}
+          >
+            <Bell size={16} color={unreadNotifsCount > 0 ? '#ef4444' : '#2563eb'} />
+            <span className="hide-mobile">Alerts</span>
+            {unreadNotifsCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px',
+                background: '#ef4444',
+                color: '#ffffff',
+                fontSize: '0.68rem',
+                fontWeight: '700',
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)'
+              }}>
+                {unreadNotifsCount}
+              </span>
+            )}
+          </button>
+
           {/* New Chat Reset Button */}
           <button
             onClick={onResetChat}

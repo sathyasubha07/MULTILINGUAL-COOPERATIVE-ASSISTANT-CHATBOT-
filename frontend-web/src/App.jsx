@@ -6,6 +6,8 @@ import ChatInterface from './components/ChatInterface';
 import FaqModal from './components/FaqModal';
 import OfficeLocatorModal from './components/OfficeLocatorModal';
 import AccountModal from './components/AccountModal';
+import NotificationModal from './components/NotificationModal';
+import NotificationPopup from './components/NotificationPopup';
 import { sendTextQuery, sendVoiceQuery } from './services/api';
 import { downloadConversationPDF } from './utils/pdfExport';
 import { TRANSLATIONS } from './translations';
@@ -18,8 +20,8 @@ const USER_STORAGE_KEY = 'coop_portal_user';
  * 
  * Layout Architecture:
  * - Left: ChatGPT / Gemini Collapsible Sidebar with New Chat, Search, Popular Topics, and Chat History
- * - Center: ONLY the Chat Interface taking full vertical screen cleanly
- * - First Time: Onboarding asks for Language Selection + Personal Account Registration
+ * - Center: Chat Interface with feedback & copy actions
+ * - Real-Time: Smart Scheme Notifications, Dynamic Eligibility Alerts & Floating Toast Popups
  */
 export default function App() {
   // User Personal Account State
@@ -45,8 +47,13 @@ export default function App() {
   const [textSize, setTextSize] = useState('normal');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Modal Visibility State
-  const [activeModal, setActiveModal] = useState(null); // 'lang', 'faq', 'locator', 'account' or null
+  // Modal Visibility State: 'lang', 'faq', 'locator', 'account', 'notifications' or null
+  const [activeModal, setActiveModal] = useState(null);
+
+  // Notifications & Alert Popup State
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [popupAlert, setPopupAlert] = useState(null);
 
   // Chat History / Sessions State
   const [sessions, setSessions] = useState(() => {
@@ -86,6 +93,50 @@ export default function App() {
     }
   }, [sessions]);
 
+  // Fetch Scheme Notifications & Dynamic Eligibility Alerts from Backend
+  const fetchNotifications = async () => {
+    try {
+      const userId = user?.id || 'default';
+      const res = await fetch(`http://127.0.0.1:8000/api/v1/notifications/?user_id=${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unread_count || 0);
+
+        // If there's an unread urgent or personalized alert, show popup toast
+        const urgentAlert = (data.notifications || []).find((n) => !n.is_read && (n.priority === 'High' || n.badge === 'Personalized'));
+        if (urgentAlert && !popupAlert) {
+          setPopupAlert(urgentAlert);
+        }
+      }
+    } catch (err) {
+      console.warn('Notification fetch notice:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 60000); // Check every 60s
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const handleMarkNotificationRead = async (notifId) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notifId ? { ...n, is_read: true } : n))
+    );
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+
+    try {
+      await fetch('http://127.0.0.1:8000/api/v1/notifications/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user?.id || 'default', notification_id: notifId })
+      });
+    } catch (err) {
+      console.warn('Mark read notice:', err);
+    }
+  };
+
   // Handlers
   const handleSelectLanguage = (code) => {
     setLangCode(code);
@@ -116,6 +167,7 @@ export default function App() {
     if (updatedUser.preferredLang) {
       setLangCode(updatedUser.preferredLang);
     }
+    fetchNotifications();
   };
 
   const handleLogout = () => {
@@ -337,7 +389,7 @@ export default function App() {
 
       {/* Main Content Area: Header on top, ONLY ChatInterface centered */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100vh', overflow: 'hidden' }}>
-        {/* Header Bar */}
+        {/* Header Bar with Live Scheme Notification Bell */}
         <Header
           langCode={langCode}
           theme={theme}
@@ -348,9 +400,10 @@ export default function App() {
           onOpenFaq={() => setActiveModal('faq')}
           onOpenLocator={() => setActiveModal('locator')}
           onOpenAccount={() => setActiveModal('account')}
+          onOpenNotifications={() => setActiveModal('notifications')}
+          unreadNotifsCount={unreadCount}
           user={user}
           onResetChat={handleNewChat}
-          hasMessages={messages.length > 0}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={handleToggleSidebar}
         />
@@ -390,7 +443,32 @@ export default function App() {
         </main>
       </div>
 
-      {/* Modals */}
+      {/* Floating Popup Toast Alert for Newly Unlocked Schemes or Urgent Calamities */}
+      {popupAlert && (
+        <NotificationPopup
+          notification={popupAlert}
+          onClose={() => setPopupAlert(null)}
+          onAction={(query) => {
+            handleSendMessage(query);
+            handleMarkNotificationRead(popupAlert.id);
+          }}
+        />
+      )}
+
+      {/* Notification Center Modal */}
+      {activeModal === 'notifications' && (
+        <NotificationModal
+          langCode={langCode}
+          notifications={notifications}
+          onSelectQuery={(q) => handleSendMessage(q)}
+          onMarkRead={handleMarkNotificationRead}
+          onClose={() => setActiveModal(null)}
+          onOpenAccount={() => setActiveModal('account')}
+          user={user}
+        />
+      )}
+
+      {/* Member Account / Preferences Modal */}
       {activeModal === 'account' && (
         <AccountModal
           langCode={langCode}
@@ -398,9 +476,11 @@ export default function App() {
           onSaveUser={handleSaveUser}
           onLogout={handleLogout}
           onClose={() => setActiveModal(null)}
+          onShowEligibilityAlert={(alert) => setPopupAlert(alert)}
         />
       )}
 
+      {/* Language Modal */}
       {activeModal === 'lang' && (
         <div className="modal-overlay" onClick={() => setActiveModal(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '750px' }}>
@@ -425,6 +505,7 @@ export default function App() {
         </div>
       )}
 
+      {/* FAQ Modal */}
       {activeModal === 'faq' && (
         <FaqModal
           langCode={langCode}
@@ -432,6 +513,7 @@ export default function App() {
         />
       )}
 
+      {/* Office Locator Modal */}
       {activeModal === 'locator' && (
         <OfficeLocatorModal
           langCode={langCode}

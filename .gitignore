@@ -30,6 +30,7 @@ database/vector_db/*.pkl
 
 # Logs & OS
 *.log
+database/data/users/
 .DS_Store
 Thumbs.db
 .vscode/

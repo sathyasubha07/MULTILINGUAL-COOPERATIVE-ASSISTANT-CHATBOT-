@@ -26,6 +26,10 @@ import {
   ChevronRight,
   Globe,
   Mail,
+  ThumbsUp,
+  ThumbsDown,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 /**
@@ -50,10 +54,37 @@ export default function ChatInterface({
   const t = TRANSLATIONS[langCode] || TRANSLATIONS.en;
   const [isRecording, setIsRecording] = useState(false);
   const [audioState, setAudioState] = useState({ messageId: null, status: 'idle' });
+  const [feedbackMap, setFeedbackMap] = useState({});
+  const [copiedId, setCopiedId] = useState(null);
   const currentAudioRef = useRef(null);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const langSliderRef = useRef(null);
+
+  const handleFeedback = async (msgId, isHelpful, queryText) => {
+    setFeedbackMap((prev) => ({ ...prev, [msgId]: isHelpful ? 'up' : 'down' }));
+    try {
+      await fetch('http://127.0.0.1:8000/api/v1/notifications/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: queryText || 'User Query',
+          helpful: isHelpful,
+          score: isHelpful ? 5 : 2,
+          category: 'Chat Interaction'
+        })
+      });
+    } catch (err) {
+      console.warn('Feedback logging notice:', err);
+    }
+  };
+
+  const handleCopyText = (msgId, text) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedId(msgId);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   // Auto-scroll to bottom of chat history on new messages
   useEffect(() => {
@@ -751,9 +782,18 @@ export default function ChatInterface({
                     </div>
                   )}
 
-                  {/* Speech Voice Output Controls */}
+                  {/* Assistant Message Actions: Speech Voice + Copy + Feedback (ChatGPT style) */}
                   {!isUser && msg.text && (
-                    <div style={{ marginTop: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{
+                      marginTop: '0.85rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: '0.5rem',
+                      paddingTop: '0.4rem',
+                      borderTop: '1px solid rgba(203, 213, 225, 0.4)'
+                    }}>
                       <button
                         type="button"
                         onClick={() => toggleSpeech(msg.id || idx, msg.text)}
@@ -761,8 +801,8 @@ export default function ChatInterface({
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '0.45rem',
-                          padding: '0.4rem 0.85rem',
-                          fontSize: '0.82rem',
+                          padding: '0.35rem 0.75rem',
+                          fontSize: '0.8rem',
                           fontWeight: '600',
                           borderRadius: '999px',
                           border: isPlaying ? '1px solid #10b981' : '1px solid #cbd5e1',
@@ -799,6 +839,74 @@ export default function ChatInterface({
                           </>
                         )}
                       </button>
+
+                      {/* Copy & Feedback Buttons */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        {/* Copy Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(msg.id || idx, msg.text)}
+                          title="Copy message to clipboard"
+                          style={{
+                            background: 'transparent',
+                            border: '1px solid var(--bg-card-border)',
+                            color: copiedId === (msg.id || idx) ? '#10b981' : 'var(--text-muted)',
+                            padding: '0.35rem 0.55rem',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            fontSize: '0.75rem',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {copiedId === (msg.id || idx) ? <Check size={13} color="#10b981" /> : <Copy size={13} />}
+                          <span>{copiedId === (msg.id || idx) ? 'Copied' : 'Copy'}</span>
+                        </button>
+
+                        {/* Thumbs Up Feedback */}
+                        <button
+                          type="button"
+                          onClick={() => handleFeedback(msg.id || idx, true, messages[idx - 1]?.text)}
+                          title="Helpful response"
+                          style={{
+                            background: feedbackMap[msg.id || idx] === 'up' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
+                            border: '1px solid var(--bg-card-border)',
+                            color: feedbackMap[msg.id || idx] === 'up' ? '#059669' : 'var(--text-muted)',
+                            padding: '0.35rem',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          <ThumbsUp size={13} />
+                        </button>
+
+                        {/* Thumbs Down Feedback */}
+                        <button
+                          type="button"
+                          onClick={() => handleFeedback(msg.id || idx, false, messages[idx - 1]?.text)}
+                          title="Needs improvement"
+                          style={{
+                            background: feedbackMap[msg.id || idx] === 'down' ? 'rgba(239, 68, 68, 0.15)' : 'transparent',
+                            border: '1px solid var(--bg-card-border)',
+                            color: feedbackMap[msg.id || idx] === 'down' ? '#ef4444' : 'var(--text-muted)',
+                            padding: '0.35rem',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          <ThumbsDown size={13} />
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

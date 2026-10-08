@@ -13,6 +13,7 @@ from backend.app.api.grievance import router as grievance_router
 from backend.app.api.pacs import pacs_router
 from backend.app.api.law import router as law_router
 from backend.app.api.financial import router as financial_router
+from backend.app.api.notifications import router as notifications_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -36,6 +37,7 @@ app.include_router(grievance_router, prefix=f"{settings.API_V1_STR}/grievance", 
 app.include_router(pacs_router, prefix=f"{settings.API_V1_STR}/pacs", tags=["PACS Services & Bylaws"])
 app.include_router(law_router, prefix=f"{settings.API_V1_STR}/law", tags=["Cooperative Laws & MSCS"])
 app.include_router(financial_router, prefix=f"{settings.API_V1_STR}/financial", tags=["Financial Literacy & KCC"])
+app.include_router(notifications_router, prefix=f"{settings.API_V1_STR}/notifications", tags=["Scheme Alerts & Notifications"])
 
 import asyncio
 from ai_engine.language.text_to_speech import text_to_speech
