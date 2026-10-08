@@ -63,7 +63,7 @@ class LLMReasoner:
         self.provider = settings.DEFAULT_LLM_PROVIDER
         self.groq_key = settings.GROQ_API_KEY or os.getenv("GROQ_API_KEY")
         self.gemini_key = settings.GEMINI_API_KEY or os.getenv("GEMINI_API_KEY")
-        self.gemini_models = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest", "gemini-2.5-pro"]
+        self.gemini_models = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite-preview", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.7-flash"]
 
     def generate_response(self, prompt: str, context_docs: List[Dict[str, Any]], domain: str, language: str = "en") -> str:
         """
@@ -97,41 +97,45 @@ class LLMReasoner:
         citations_list = []
         if context_docs:
             facts = []
-            for d in context_docs[:3]:
+            for d in context_docs[:6]:
                 title = d.get("title") or d.get("scheme_name") or d.get("act_name") or d.get("category", "")
                 summary = d.get("summary") or d.get("overview") or d.get("description") or d.get("financial_benefit", "")
-                facts.append(f"Document: {title}\nSummary: {summary}")
+                facts.append(f"- **{title}**: {summary}")
                 if "citations" in d:
                     citations_list.extend(d["citations"])
                 if "legal_sections" in d:
                     citations_list.extend(d["legal_sections"])
-            context_str = "\n\n".join(facts)
+            context_str = "\n".join(facts)
 
         system_instruction = (
             f"{persona}\n"
-            f"Target Language: {lang_name}.\n"
-            "Grounding Rules:\n"
-            "1. Answer authoritatively with statutory accuracy, clear structure, bold key terms, and bullet points.\n"
-            "2. Ensure all advice aligns with official Indian cooperative laws, government schemes, RBI/NABARD guidelines, and PMFBY protocols.\n"
-            "3. If specific procedures, timelines, or official contacts/portals apply, include them clearly.\n"
-            f"4. Respond entirely and naturally in {lang_name}."
+            f"Target Output Language: {lang_name}.\n"
+            "STRICT OPERATIONAL DIRECTIVES:\n"
+            "1. Answer authoritatively, directly, and comprehensively with rich formatting (bold headings, structured scheme breakdown, key eligibility, document checklists, and application steps).\n"
+            "2. Ensure all guidance aligns with official Indian cooperative laws, Ministry of Agriculture & Farmers Welfare, PMFBY, RBI/NABARD guidelines, and State Agriculture departments.\n"
+            "3. If the farmer asks for eligible schemes or general assistance, present all relevant flagship central and state schemes clearly.\n"
+            f"4. Respond naturally and fully in {lang_name}.\n"
+            "5. CRITICAL: Do NOT output internal thought processes, planning notes, or meta-comments. Output ONLY the complete, direct, final advisory for the user."
         )
 
-        full_prompt = (
-            f"System Persona & Instructions:\n{system_instruction}\n\n"
-            f"Verified Official Database Context:\n{context_str}\n\n"
-            f"User Query:\n{prompt}\n\n"
-            f"Provide a comprehensive, helpful, and legally grounded response in {lang_name}:"
+        user_content = (
+            f"Verified Official Statutory Context:\n{context_str}\n\n"
+            f"Farmer / Citizen Query:\n{prompt}\n\n"
+            f"Generate a comprehensive, complete, structured, and legally accurate advisory in {lang_name}:"
         )
 
         payload = {
+            "system_instruction": {
+                "parts": [{"text": system_instruction}]
+            },
             "contents": [{
-                "parts": [{"text": full_prompt}]
+                "role": "user",
+                "parts": [{"text": user_content}]
             }],
             "generationConfig": {
-                "temperature": 0.2,
+                "temperature": 0.25,
                 "topP": 0.95,
-                "maxOutputTokens": 1024
+                "maxOutputTokens": 3500
             }
         }
 
@@ -145,16 +149,16 @@ class LLMReasoner:
                 headers={"Content-Type": "application/json"}
             )
             try:
-                with urllib.request.urlopen(req, timeout=8.0) as resp:
+                with urllib.request.urlopen(req, timeout=12.0) as resp:
                     if resp.status == 200:
                         res_json = json.loads(resp.read().decode("utf-8"))
                         candidates = res_json.get("candidates", [])
                         if candidates and "content" in candidates[0]:
                             parts = candidates[0]["content"].get("parts", [])
                             if parts and "text" in parts[0]:
-                                text_output = parts[0]["text"]
+                                text_output = parts[0]["text"].strip()
                                 # Append verified citations if not already present
-                                if citations_list and "🏛️" not in text_output and "Verified" not in text_output:
+                                if citations_list and "🏛️" not in text_output and "Verified" not in text_output and "சான்றாதாரங்கள்" not in text_output:
                                     unique_cites = list(dict.fromkeys(citations_list))[:4]
                                     text_output += f"\n\n🏛️ **Verified Sources / Citations:** {', '.join(unique_cites)}"
                                 return text_output

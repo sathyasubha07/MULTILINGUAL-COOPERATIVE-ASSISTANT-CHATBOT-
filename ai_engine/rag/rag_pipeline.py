@@ -52,7 +52,8 @@ class RAGPipeline:
             if dom == "farmer_scheme":
                 # Specialized Farmer Scheme Sub-Model Execution
                 scheme_res = self.farmer_scheme_submodel.generate_scheme_guidance(query, language)
-                domain_contexts[dom] = [scheme_res["primary_scheme"]]
+                matched_all = self.farmer_scheme_submodel.find_matching_schemes(query)
+                domain_contexts[dom] = matched_all[:6] if matched_all else [scheme_res["primary_scheme"]]
                 citations.extend(scheme_res.get("citations", []))
                 
                 # Check if Gemini reasoning is enabled for deep multilingual synthesis

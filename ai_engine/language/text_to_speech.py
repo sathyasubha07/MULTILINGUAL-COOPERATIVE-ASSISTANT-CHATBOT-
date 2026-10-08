@@ -136,11 +136,11 @@ class PiperTTSBackend(TTSBackend):
 _TTS_AUDIO_CACHE = {}
 
 
-def clean_speech_text(text: str, max_chars: int = 3000) -> str:
+def clean_speech_text(text: str, max_chars: int = 5000) -> str:
     """
     Sanitizes AI response text into natural, spoken voice sentences:
     - Strips markdown formatting, links, URLs, raw citations, tables, and emojis.
-    - Eliminates unicode surrogates to prevent encoding errors.
+    - Preserves all legitimate Tamil, Hindi, and regional words (such as ஆவணங்கள், ஆட்சியர், அலுவலர்).
     - Reads the entire comprehensive response without truncating early.
     """
     if not text:
@@ -149,22 +149,23 @@ def clean_speech_text(text: str, max_chars: int = 3000) -> str:
     # 1. Eliminate any surrogate pairs/invalid code units
     cleaned = text.encode('utf-8', 'ignore').decode('utf-8', 'ignore')
 
-    # 2. Strip URLs, links, markdown, and citation lines
+    # 2. Strip URLs and convert markdown links to text
     cleaned = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', cleaned)
     cleaned = re.sub(r'https?://\S+', '', cleaned)
-    cleaned = re.sub(r'🏛️.*', '', cleaned)
-    cleaned = re.sub(r'(?:Official Sources|Statutory Citations|Verified Sources|சட்டப்பிரிவு மேற்கோள்கள்|ஆதாரம்|ஆவணங்கள்|ஆணையரகம்|ஆட்சியர்|ஆணை|आधिकारिक संदर्भ|संदर्भ|സ്രോതസ്സുകൾ|അവലംബം).*', '', cleaned, flags=re.IGNORECASE)
+    
+    # 3. Only strip trailing source citations block at the very end
+    cleaned = re.sub(r'\n+(?:🏛️|Verified Sources|Statutory Citations|Official Sources|சட்டப்பூர்வ சான்றாதாரங்கள்).*$', '', cleaned, flags=re.DOTALL)
 
-    # 3. Strip emojis and special formatting symbols
+    # 4. Strip markdown formatting, symbols, and astral emojis while preserving letters, numbers and punctuation
     cleaned = re.sub(r'[\U00010000-\U0010ffff]', '', cleaned)  # All astral emojis
     cleaned = re.sub(r'[\ud800-\udfff]', '', cleaned)          # Surrogates
-    cleaned = re.sub(r'[#*`📌⚠️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•\-|~_]', ' ', cleaned)
+    cleaned = re.sub(r'[*#`~_><|📌⚠️🌾⚖️💳🛡️💊🚜📲🏗️💻🧮📊🔒•]', ' ', cleaned)
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
 
     if len(cleaned) <= max_chars:
         return cleaned
 
-    # 4. Truncate at natural punctuation boundary only if exceedingly long (>3000 chars)
+    # 5. Truncate at natural punctuation boundary only if exceedingly long (>5000 chars)
     cut = cleaned[:max_chars]
     last_p = max(cut.rfind('.'), cut.rfind('।'), cut.rfind('?'), cut.rfind('!'), cut.rfind(','), cut.rfind(';'))
     if last_p > 100:
